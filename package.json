@@ -10,6 +10,7 @@
     },
     "private": "true",
     "scripts": {
+        "local_v1": "node packages/node_modules/node-red/red.js -s settings.js flow/production_analysis.json -p 2300",
         "start": "node packages/node_modules/node-red/red.js -s settings.js",
         "test": "grunt",
         "build": "grunt build",
