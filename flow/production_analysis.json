@@ -972,7 +972,8 @@
         "y": 100,
         "wires": [
             [
-                "98de045bd222d4bf"
+                "98de045bd222d4bf",
+                "42637bec6244a6f4"
             ]
         ]
     },
@@ -1016,6 +1017,23 @@
         "libs": [],
         "x": 550,
         "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "42637bec6244a6f4",
+        "type": "function",
+        "z": "6009ebac4f7ca066",
+        "name": "Calculate Speed A-Line",
+        "func": "const moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst lineEnum = global.get(\"LineEnum\");\nconst preAddObjectCheck = global.get(\"preAddObjectCheck\")\nconst saveQrCode = global.get('saveQrCode');\nconst qrData = msg.qrData;\n\n\nconst timeMorningStart = global.get('timeMorningStart');\nconst timeAfternoonStart = global.get('timeAfternoonStart');\nconst timeOvertimeStart = global.get('timeOvertimeStart');\n\n\nconst currentTime = moment();\n\nif (currentTime.isAfter(timeOvertimeStart)) {\n    console.log('เวลาปัจจุบันมากกว่า timeOvertimeStart');\n} else {\n    console.log('เวลาปัจจุบันไม่มากกว่า timeOvertimeStart');\n}\n\nconst result = await db.collection(collectionEnum.PRODUCTION_DATA).find({ is_active: true }, { color_number: 1 }).toArray();\n// node.warn(results);\n\n\n\n\n// async function updateObjectZone1(line_number) {\n//     try {\n//         node.log(\"updateObjectZone1\");\n//         const results = await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).find(\n//             { is_active: true, 'lines.line_number': line_number },\n//             { _id: 0 }).sort({ current_block: -1 }).toArray();\n//         const result = results[0];\n//         // node.warn(result);\n//         result.is_active = false;\n//         const currentBlockIndex = result.current_block - 1;\n//         result.blocks[currentBlockIndex].exit_time = moment();\n//         await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).updateOne({ _id: result._id }, {\n//             $set: {\n//                 exit_time: new Date(),\n//                 blocks: result.blocks,\n//                 is_active: result.is_active\n//             }\n//         }).then((result) => {\n//             node.log(\"Update object zone1 sunccess!\");\n//         })\n//             .catch((error) => {\n//                 node.error(error);\n//             });\n//     } catch (error) {\n//         node.warn(error);\n//     };\n\n// }\n\n// //function create item zone2\n// async function createObjectZone2(qrData) {\n//     node.log(\"createObjectZone2\");\n//     const newObject = {\n//         qr_data_detail: qrData,\n//         color: await getColor(),\n//         entry_time: new Date(),\n//         exit_time: null,\n//         weight: null,\n//         is_active: true,\n//         current_zone: 2,\n//         current_block: 1,\n//         zones: [],\n//         unit_type: await validateUnitType(qrData.data.type),\n//         by_pass: [],\n//     }\n//     const newZone = {\n//         zone_number: zoneEnum.ZONE_2.index,\n//         zone_name: zoneEnum.ZONE_2.value,\n//         entry_time: new Date(),\n//         exit_time: null,\n//         blocks: []\n//     }\n\n//     const newBlock = {\n//         block_number: 1,\n//         entry_time: new Date(),\n//         exit_time: null\n//     }\n\n//     newZone.blocks.push(newBlock)\n//     newObject.zones.push(newZone)\n//     // node.warn(newObject);\n//     await db.collection(collectionEnum.PRODUCTION_DATA).insertOne(newObject)\n//         .then((result) => {\n//             node.log(\"save newObject sunccess!\");\n//         })\n//         .catch((error) => {\n//             node.error(error);\n//         });\n// }\n\n// async function getColor() {\n//     const maxColorNumber = 100;\n//     const result = await db.collection(collectionEnum.PRODUCTION_DATA).find({ is_active: true }, { color_number: 1 }).toArray();\n\n//     // 1. สร้างเซ็ตเพื่อเก็บ color_number ที่ถูกใช้แล้วใน res\n//     const usedColorNumbers = new Set();\n//     for (const item of result) {\n//         usedColorNumbers.add(item.color);\n//     }\n\n//     // 2. วนลูปหา color_number ที่ไม่ซ้ำกับที่ใช้แล้วในช่วง 1-100\n//     for (let colorNumber = 1; colorNumber <= maxColorNumber; colorNumber++) {\n//         if (!usedColorNumbers.has(colorNumber)) {\n//             return colorNumber;\n//         }\n//     }\n//     // 3. หากไม่พบ color_number ที่ไม่ซ้ำกับที่ใช้แล้วในช่วง 1-100\n//     return null;\n// }\n\n// async function updateReport(qrData) {\n//     const newHouseObject = {\n//         record_date_time: new Date(),\n//         entry_time: new Date(),\n//         house_name: qrData.data.owner_name,\n//         house_code: qrData.data.house_code,\n//         total_unit: qrData.data.total_units,\n//         mj_date: qrData.data.mj_plan_date,\n//         mj_date_time: \"\",\n//         installation_date: qrData.data.installation_date,\n//         all_part_finish_date_time: null,\n//         duration: null,\n//     }\n//     const record = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).find({\n//         house_name: qrData.data.owner_name,\n//         house_code: qrData.data.house_code,\n//         total_unit: qrData.data.total_units,\n//     }).toArray();\n\n//     if (record.length === 0) {\n//         await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).insertOne(newHouseObject)\n//             .then((result) => {\n//                 node.log(\"save house production record sunccess!\");\n//             })\n//             .catch((error) => {\n//                 node.error(error);\n//             });\n//     }\n\n//     const newPartObject = {\n//         record_date_time: new Date(),\n//         entry_time: new Date(),\n//         qr_code: qrData.qr_code,\n//         house_name: qrData.data.owner_name,\n//         house_code: qrData.data.house_code,\n//         type: qrData.data.type,\n//         units_number: qrData.data.units_number,\n//         total_unit: qrData.data.total_units,\n//         mj_date: qrData.data.mj_plan_date,\n//         mj_date_time: \"\",\n//         installation_date: qrData.data.installation_date,\n//         part_finish_date_time: null,\n//         weight: null,\n//         ct_min_at_mj: null,\n//         ct_min_at_buffer: null,\n//         ct_min_at_bypass1: null,\n//         ct_min_at_ew: null,\n//         ct_min_at_ee_in: null,\n//         ct_min_at_iwpt: null,\n//         ct_min_at_bypass2: null,\n//         ct_min_at_door: null,\n//         ct_min_at_window: null,\n//         ct_min_at_scaffold: null,\n//         ct_min_at_loading: null,\n//         ct_min_at_weight: null,\n//     }\n//     await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).insertOne(newPartObject)\n//         .then((result) => {\n//             node.log(\"save house production record sunccess!\");\n//         })\n//         .catch((error) => {\n//             node.error(error);\n//         });\n// }\n\n// async function validateUnitType(unit_type) {\n//     switch (unit_type.toUpperCase()) {\n//         case 'N':\n//             return 'N';\n//         case 'B':\n//         case 'C':\n//             return 'B,C';\n//         case 'R':\n//             return 'R';\n//         default:\n//             // กรณีที่ไม่ตรงเงื่อนไขใดเลย\n//             return 'N';\n//     }\n// }",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 160,
         "wires": [
             []
         ]
@@ -2158,7 +2176,6 @@
             [
                 "c063950189fb9aa9",
                 "fdc559e597817610",
-                "aaa66cae8e61f673",
                 "99cc2f2ed389e041",
                 "3356d20f9807a13c",
                 "89018b8cf2ecac50"
@@ -2206,14 +2223,14 @@
         "type": "function",
         "z": "3b1fe48eb8c3d4ed",
         "name": "setTimeMoveItem",
-        "func": "const ZoneMoveTime = {\n    zone1MoveTime: 10,\n    zone2MoveTime: 1,\n    zone3MoveTime: 1,\n    zone4MoveTime: 1,\n    zone5MoveTime: 1,\n    zone6MoveTime: 1,\n    zone7MoveTime: 1,\n    zone8MoveTime: 1,\n    zone9MoveTime: 1,\n    zone10MoveTime: 1,\n    zone11MoveTime: 1,\n    zone12MoveTime: 1,\n};\n\nglobal.set('ZoneMoveTime', ZoneMoveTime);\n\n\n",
+        "func": "const moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst timeMorningStart = global.get('timeMorningStart');\nconst timeMorningEnd = global.get('timeMorningEnd');\nconst timeAfternoonStart = global.get('timeAfternoonStart');\nconst timeAfternoonEnd = global.get('timeAfternoonEnd');\nconst timeOvertimeStart = global.get('timeOvertimeStart');\nconst timeOvertimeEnd = global.get('timeOvertimeEnd');\n\nconst currentTime = moment();\nlet timeMove = 0;\nlet queryCondition = {}; // เงื่อนไขการค้นหาเริ่มต้น\n\nif (currentTime.isAfter(timeOvertimeStart)) {\n    queryCondition = { entry_time: { $gt: new Date(timeOvertimeStart), $lt: new Date(timeOvertimeEnd) } };\n} else if (currentTime.isAfter(timeAfternoonStart)) {\n    queryCondition = { entry_time: { $gt: new Date(timeAfternoonStart), $lt: new Date(timeAfternoonEnd) } };\n} else if (currentTime.isAfter(timeMorningStart)) {\n    queryCondition = { entry_time: { $gt: new Date(timeMorningStart), $lt: new Date(timeMorningEnd) } };\n}\n\nconst result = await db.collection(collectionEnum.PRODUCTION_DATA).find(queryCondition).toArray();\n\nif (result?.length > 0) {\n    const timeDifference = moment(currentTime).diff(queryCondition.entry_time.$gt, 'minutes');\n    timeMove = Math.floor(timeDifference / result.length);\n}\n\nconst ZoneMoveTime = {\n    zone1MoveTime: timeMove,\n    zone2MoveTime: timeMove,\n    zone3MoveTime: 0,\n    zone4MoveTime: 0,\n    zone5MoveTime: 0,\n    zone6MoveTime: 0,\n    zone7MoveTime: 0,\n    zone8MoveTime: 0,\n    zone9MoveTime: 0,\n    zone10MoveTime: 0,\n    zone11MoveTime: 0,\n    zone12MoveTime: 0,\n};\n\nglobal.set('ZoneMoveTime', ZoneMoveTime);",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 470,
-        "y": 220,
+        "y": 300,
         "wires": [
             []
         ]
@@ -2247,7 +2264,7 @@
         "finalize": "",
         "libs": [],
         "x": 480,
-        "y": 260,
+        "y": 220,
         "wires": [
             []
         ]
@@ -2513,8 +2530,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 360,
-        "y": 540,
+        "x": 720,
+        "y": 580,
         "wires": [
             []
         ]
@@ -2616,7 +2633,7 @@
         "type": "function",
         "z": "3b1fe48eb8c3d4ed",
         "name": "Validate time",
-        "func": "const db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst lineEnum = global.get(\"LineEnum\");\nconst preAddObjectCheck = global.get(\"preAddObjectCheck\");\nconst qrData = msg.qrData;\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\n\n\n\nconst results = await db.collection(collectionEnum.PRODUCTION_DATA).find(\n    { current_zone: 3, is_active: true }, { _id: 0 }).sort({ \"zones.current_block\": -1 }).toArray();\n\nconst result = results[0];\n\nfor (const zone of result.zones) {\n    const entryTime = zone.entry_time;\n    const exitTime = zone.exit_time;\n    const entryTime1 = moment(\"2023-09-09T16:55\");\n    const exitTime1 = moment(\"2023-09-10T08:12\");\n    // node.warn(zone.entry_time);\n    // node.warn(`entryTime:${entryTime}`);\n    // node.warn(`exitTime:${exitTime}`);\n    // node.warn(`entryTime1:${entryTime1}`);\n    // node.warn(`exitTime1:${exitTime1}`);\n    await calculateTotalWorkMinutes(entryTime, exitTime);\n    await calculateTotalWorkMinutes(entryTime1, exitTime1);\n}\n",
+        "func": "const moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst timeMorningStart = global.get('timeMorningStart');\nconst timeMorningEnd = global.get('timeMorningEnd');\nconst timeAfternoonStart = global.get('timeAfternoonStart');\nconst timeAfternoonEnd = global.get('timeAfternoonEnd');\nconst timeOvertimeStart = global.get('timeOvertimeStart');\nconst timeOvertimeEnd = global.get('timeOvertimeEnd');\n\nconst currentTime = moment();\nlet timeMove = 0;\nlet queryCondition = {}; // เงื่อนไขการค้นหาเริ่มต้น\n\nif (currentTime.isAfter(timeOvertimeStart)) {\n    queryCondition = { entry_time: { $gt: new Date(timeOvertimeStart) } };\n} else if (currentTime.isAfter(timeAfternoonStart)) {\n    queryCondition = { entry_time: { $gt: new Date(timeAfternoonStart) } };\n} else if (currentTime.isAfter(timeMorningStart)) {\n    queryCondition = { entry_time: { $gt: new Date(timeMorningStart) } };\n}\n\nconst result = await db.collection(collectionEnum.PRODUCTION_DATA).find(queryCondition).toArray();\n\nif (result?.length > 0) {\n    const timeDifference = moment(currentTime).diff(queryCondition.entry_time.$gt, 'minutes');\n    timeMove = Math.floor(timeDifference / result.length);\n}\n\nconst ZoneMoveTime = {\n    zone1MoveTime: timeMove,\n    zone2MoveTime: timeMove,\n    zone3MoveTime: 0,\n    zone4MoveTime: 0,\n    zone5MoveTime: 0,\n    zone6MoveTime: 0,\n    zone7MoveTime: 0,\n    zone8MoveTime: 0,\n    zone9MoveTime: 0,\n    zone10MoveTime: 0,\n    zone11MoveTime: 0,\n    zone12MoveTime: 0,\n};\n\nglobal.set('ZoneMoveTime', ZoneMoveTime);",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2626,6 +2643,35 @@
         "y": 660,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "d81ee04e044e1f1b",
+        "type": "inject",
+        "z": "3b1fe48eb8c3d4ed",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "10",
+        "topic": "",
+        "payload": "morning",
+        "payloadType": "str",
+        "x": 240,
+        "y": 300,
+        "wires": [
+            [
+                "aaa66cae8e61f673"
+            ]
         ]
     },
     {
