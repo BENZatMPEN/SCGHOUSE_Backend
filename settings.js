@@ -469,6 +469,7 @@ module.exports = {
         env: require('dotenv'),
         bcrypt: require('bcryptjs'),
         moment: require('moment'),
+        xlsx: require('xlsx'),
     },
 
     /** The maximum number of messages nodes will buffer internally as part of their
