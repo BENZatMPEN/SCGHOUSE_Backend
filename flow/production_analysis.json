@@ -2072,7 +2072,7 @@
         "type": "function",
         "z": "3b1fe48eb8c3d4ed",
         "name": "setTimeMoveItem LineA",
-        "func": "const moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst timeMorningStart = global.get('timeMorningStart');\nconst timeMorningEnd = global.get('timeMorningEnd');\nconst timeAfternoonStart = global.get('timeAfternoonStart');\nconst timeAfternoonEnd = global.get('timeAfternoonEnd');\nconst timeOvertimeStart = global.get('timeOvertimeStart');\nconst timeOvertimeEnd = global.get('timeOvertimeEnd');\nconst zoneMoveTime = global.get('ZoneMoveTime');\n\nconst currentTime = moment();\nlet timeMove = 9999;\nlet queryCondition = null; // เงื่อนไขการค้นหาเริ่มต้น\n\n\nif (currentTime.isAfter(timeOvertimeStart) && timeOvertimeStart.hour() !== 0 && timeOvertimeStart.minute() !== 0) {\n    node.warn(`timeOvertimeStart:${timeOvertimeStart}`);\n    queryCondition = { entry_time: { $gt: new Date(timeOvertimeStart), $lt: new Date(timeOvertimeEnd) } };\n} else if (currentTime.isAfter(timeAfternoonStart)) {\n    node.warn(`timeAfternoonStart:${timeAfternoonStart}`);\n    queryCondition = { entry_time: { $gt: new Date(timeAfternoonStart), $lt: new Date(timeAfternoonEnd) } };\n} else if (currentTime.isAfter(timeMorningStart)) {\n    node.warn(`timeMorningStart:${timeMorningStart}`);\n    queryCondition = { entry_time: { $gt: new Date(timeMorningStart), $lt: new Date(timeMorningEnd) } };\n}\n// node.warn(queryCondition);\nif (!queryCondition){\n    node.warn(`Not in working hours...`);\n    return\n}\nconst result = await db.collection(collectionEnum.PRODUCTION_DATA).find(queryCondition).toArray();\nnode.warn(result);\nif (result?.length > 0) {\n    const timeDifference = moment(currentTime).diff(queryCondition.entry_time.$gt, 'minutes');\n    timeMove = Math.floor(timeDifference / result.length);\n}\nnode.warn(`timeMove:${timeMove}`);\nzoneMoveTime['zone1MoveTime'] = timeMove;\nzoneMoveTime['zone2MoveTime'] = timeMove;\nnode.warn(zoneMoveTime);\n// const ZoneMoveTime = {\n//     zone1MoveTime: timeMove,\n//     zone2MoveTime: timeMove,\n//     zone3MoveTime: 9999,\n//     zone4MoveTime: 9999,\n//     zone5MoveTime: 9999,\n//     zone6MoveTime: 9999,\n//     zone7MoveTime: 9999,\n//     zone8MoveTime: 9999,\n//     zone9MoveTime: 9999,\n//     zone10MoveTime: 9999,\n//     zone11MoveTime: 9999,\n//     zone12MoveTime: 9999,\n// };\n\n// global.set('ZoneMoveTime', ZoneMoveTime);",
+        "func": "const moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst timeMorningStart = global.get('timeMorningStart');\nconst timeMorningEnd = global.get('timeMorningEnd');\nconst timeAfternoonStart = global.get('timeAfternoonStart');\nconst timeAfternoonEnd = global.get('timeAfternoonEnd');\nconst timeOvertimeStart = global.get('timeOvertimeStart');\nconst timeOvertimeEnd = global.get('timeOvertimeEnd');\nconst zoneMoveTime = global.get('ZoneMoveTime');\n\nconst currentTime = moment();\nlet timeMove = 9999;\nlet queryCondition = null; // เงื่อนไขการค้นหาเริ่มต้น\n\n\nif (currentTime.isAfter(timeOvertimeStart) && timeOvertimeStart.hour() !== 0 && timeOvertimeStart.minute() !== 0) {\n    node.warn(`timeOvertimeStart:${timeOvertimeStart}`);\n    queryCondition = { entry_time: { $gt: new Date(timeOvertimeStart), $lt: new Date(timeOvertimeEnd) } };\n} else if (currentTime.isAfter(timeAfternoonStart)) {\n    node.warn(`timeAfternoonStart:${timeAfternoonStart}`);\n    queryCondition = { entry_time: { $gt: new Date(timeAfternoonStart), $lt: new Date(timeAfternoonEnd) } };\n} else if (currentTime.isAfter(timeMorningStart)) {\n    node.warn(`timeMorningStart:${timeMorningStart}`);\n    queryCondition = { entry_time: { $gt: new Date(timeMorningStart), $lt: new Date(timeMorningEnd) } };\n}\n// node.warn(queryCondition);\nif (!queryCondition){\n    node.warn(`Not in working hours...`);\n    return\n}\nconst result = await db.collection(collectionEnum.PRODUCTION_DATA).find(queryCondition).toArray();\n// node.warn(result);\nif (result?.length > 0) {\n    const timeDifference = moment(currentTime).diff(queryCondition.entry_time.$gt, 'minutes');\n    timeMove = Math.floor(timeDifference / result.length);\n}\nnode.warn(`timeMove:${timeMove}`);\nzoneMoveTime['zone1MoveTime'] = timeMove;\nzoneMoveTime['zone2MoveTime'] = timeMove;\n// node.warn(zoneMoveTime);\n// const ZoneMoveTime = {\n//     zone1MoveTime: timeMove,\n//     zone2MoveTime: timeMove,\n//     zone3MoveTime: 9999,\n//     zone4MoveTime: 9999,\n//     zone5MoveTime: 9999,\n//     zone6MoveTime: 9999,\n//     zone7MoveTime: 9999,\n//     zone8MoveTime: 9999,\n//     zone9MoveTime: 9999,\n//     zone10MoveTime: 9999,\n//     zone11MoveTime: 9999,\n//     zone12MoveTime: 9999,\n// };\n\n// global.set('ZoneMoveTime', ZoneMoveTime);",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2089,7 +2089,7 @@
         "type": "function",
         "z": "3b1fe48eb8c3d4ed",
         "name": "Global Function",
-        "func": "const db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst dotenv = global.get(\"env\").config().parsed;\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst lineEnum = global.get(\"LineEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst zoneMoveTime = global.get('ZoneMoveTime');\nconst maxBlockPerZone = global.get('maxBlockPerZone');\nconst maxBlock = 99;\n// ======================= Zone other ===========================//\nconst preAddObjectCheck = async (zoneIndex, startIndex) => {\n    // node.warn(`preAddObjectCheck(zoneIndex:${zoneIndex} ,startIndex${startIndex})`);\n    try {\n        let listNextBlocks = await findNextBlockZone(zoneIndex, startIndex);\n        // node.warn(`findNextBlockZone:${listNextBlocks}`);\n        // if (zoneIndex === 5) node.warn(`listNextBlocks:${listNextBlocks}`);\n        for (const result of listNextBlocks) {\n            for (const zone of result.zones) {\n                if (zone.zone_number !== zoneIndex) {\n                    continue;\n                }\n                const lastBlock = zone.blocks[zone.blocks.length - 1].block_number;\n                const newBlockNumber = lastBlock + 1;\n                zone.blocks[zone.blocks.length - 1].exit_time = new Date();\n\n                // Create new block\n                const newBlock = {\n                    block_number: newBlockNumber,\n                    entry_time: new Date(),\n                    exit_time: null\n                };\n                // const newBlocks = zone.blocks.slice();\n                zone.blocks.push(newBlock);\n                await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                    { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                    {\n                        $set: {\n                            current_block: newBlockNumber,\n                            \"zones.$.blocks\": zone.blocks\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(`Update newBlock(${newBlockNumber}) zome(${zoneIndex}) success!`);\n                }).catch((error) => {\n                    node.warn(error);\n                });\n            }\n        }\n    } catch (error) {\n        node.warn(error);\n    }\n}\n\nasync function findNextBlockZone(zone, startIndex, unitType) {\n    // node.warn(`findNextBlockZone(zone:${zone}, startIndex:${startIndex})`);\n    const maxBlock = await getmaxBlockPerZone(zone);\n    let results = [];\n    if (zone === 8){\n        let maxBlockType = maxBlock[unitType];\n        for (let index = startIndex; index <= maxBlockType; index++) {\n            const query = {\n                \"is_active\": true,\n                \"current_zone\": zone,\n                \"current_block\": index,\n                \"unit_type\": unitType\n            }\n            const result = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n            if (result.length === 0) {\n                // node.warn(\"Break!!\");\n                return results; // คืนค่าผลลัพธ์ที่ได้ก่อนหยุดการทำงาน\n            }\n            results.push(result[0])\n            if (index === maxBlock) {\n                results = [];\n            }\n        }\n        return results;\n    } else {\n        for (let index = startIndex; index <= maxBlock; index++) {\n            const query = {\n                \"is_active\": true,\n                \"current_zone\": zone,\n                \"current_block\": index\n            }\n            const result = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n            if (result.length === 0) {\n                // node.warn(\"Break!!\");\n                return results; // คืนค่าผลลัพธ์ที่ได้ก่อนหยุดการทำงาน\n            }\n            results.push(result[0])\n            if (index === maxBlock) {\n                results = [];\n            }\n        }\n        return results;\n    }\n}\n\nglobal.set('preAddObjectCheck', preAddObjectCheck);\n\n\n// ======================= Zone1 ===========================//\nconst preAddObjectCheckZone1 = async (lineNumber, startIndex) => {\n    let listNextBlocks = await findNextBlockZone1(lineNumber, startIndex);\n    // listNextBlocks.forEach(async (result) => {\n    for (const result of listNextBlocks) {\n        const lastBlock = result.blocks[result.blocks.length - 1].block_number;\n        const newBlockNumber = lastBlock + 1;\n\n        // Update exit_time of last block\n        result.blocks[result.blocks.length - 1].exit_time = new Date();\n\n        // Create new block\n        const newBlock = {\n            block_number: newBlockNumber,\n            entry_time: new Date(),\n            exit_time: null\n        };\n\n        // Push the new block to the blocks array\n        result.blocks.push(newBlock);\n\n        // Update the document in the collection with the new blocks and current_block value\n        await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).updateOne({ _id: result._id }, {\n            $set: {\n                blocks: result.blocks,\n                current_block: newBlockNumber\n            }\n        });\n    };\n};\n\n\nasync function findNextBlockZone1(lineNumber, startIndex) {\n    let results = [];\n    const maxBlock = await getmaxBlockPerZone(1);\n    for (let index = startIndex; index <= await maxBlock; index++) {\n        const query = {\n            \"is_active\": true,\n            \"current_block\": index,\n            \"lines.line_number\": lineNumber\n        }\n\n        const result = await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).find(query).toArray();\n        // node.warn(result);\n        if (result.length === 0) {\n            // node.warn(\"Break!!\");\n            return results; // คืนค่าผลลัพธ์ที่ได้ก่อนหยุดการทำงาน\n        }\n        results.push(result[0])\n        if (index === maxBlock) {\n            results = [];\n        }\n    }\n\n    return results;\n}\n\nglobal.set('preAddObjectCheckZone1', preAddObjectCheckZone1);\n\n\nconst compareDateTime = async (zone) => {\n    let maxBlock = await getmaxBlockPerZone(zone);\n    const timeMove = await getTimeMove(zone);\n    try {\n        const pipeline = [\n            { $match: { current_zone: zone, is_active: true } },\n            { $unwind: \"$zones\" },\n            { $unwind: \"$zones.blocks\" },\n            { $match: { \"zones.blocks.exit_time\": null, \"zones.zone_number\": zone } },\n            { $sort: { \"zones.blocks.entry_time\": 1 } },\n        ];\n\n        const results = await db.collection(collectionEnum.PRODUCTION_DATA).aggregate(pipeline).toArray();\n        const block_all = results.map(item => item.current_block);\n        maxBlock = await findPossibleMax(block_all, maxBlock);\n        // node.warn(block_all);\n        if (results.length === 0) {\n            return 0;\n        }\n        for (const result of results) {\n            if (result.current_block > maxBlock) {\n                continue;\n            } else if (result.current_block === maxBlock) {\n                maxBlock -= 1;\n                continue;\n            }\n            // const entry_time = moment(result.zones.blocks.entry_time);\n            const entry_time = new Date(result.zones.blocks.entry_time);\n            // node.warn(entry_time);\n            const currentTime = new Date();\n            const timeDifferenceInMinutes = (currentTime.getTime() - entry_time.getTime()) / (1000 * 60);\n            // node.warn(`timeDifferenceInMinutes:${timeDifferenceInMinutes}`);\n            if (timeDifferenceInMinutes > timeMove) {\n                node.warn(`Zone: ${zone} ,Time difference is greater than ${timeMove} minutes`);\n                return result.current_block;\n            } else {\n                return 0;\n            }\n        }\n        return 0;\n    } catch (error) {\n        node.error(error);\n        node.error(\"compare date time zone2 error message\", error);\n    }\n}\nglobal.set('compareDateTime', compareDateTime);\n\nconst createIndexArray = async (startIndex, endIndex, value) => {\n    const indexArray = [];\n    for (let i = startIndex; i <= endIndex; i++) {\n        indexArray.push({ index: i - startIndex + 1, address: i, value });\n    }\n    return indexArray;\n};\nglobal.set('createIndexArray', createIndexArray);\n\nconst createFloatIndexArray = async (startIndex, endIndex, value) => {\n    const indexArray = [];\n    for (let i = startIndex; i <= endIndex; i += 2) {\n        indexArray.push({ index: (i - startIndex) / 2 + 1, address: i, value });\n    }\n    return indexArray;\n};\nglobal.set('createFloatIndexArray', createFloatIndexArray);\n\n//save QR \nconst saveQrCode = async (payload) => {\n    const newQrData = await getQrData(payload);\n    await db.collection(collectionEnum.QR_DATA).insertOne(newQrData);\n    return newQrData;\n}\nglobal.set('saveQrCode', saveQrCode);\n\nasync function getQrData(payload) {\n    const qrCodeData = payload.qr_code_data;\n    const location = payload.location;\n    const splitPayload = qrCodeData.split(\";\");\n    const newQrData = {\n        qr_code: qrCodeData,\n        location: location,\n        data: {\n            house_code: splitPayload[0],\n            owner_name: splitPayload[1],\n            total_units: splitPayload[2],\n            units_number: splitPayload[3],\n            type: splitPayload[4],\n            mj_plan_date: new Date(),\n            installation_date: splitPayload[5],\n            house_type: splitPayload[6],\n            unit_type: splitPayload[7],\n            size: splitPayload[8],\n            remark_b: splitPayload[9],\n            remark_r: splitPayload[10],\n        },\n        created_at: new Date(),\n        updated_at: null,\n    };\n    return newQrData;\n}\nglobal.set('getQrData', getQrData);\n\n\nconst calculateCT = async (startDate, endDate) => {\n    const dateList = [];\n    let currentDate = moment(startDate);\n\n    while (currentDate.isSameOrBefore(endDate, 'day')) {\n        dateList.push(currentDate.format('YYYY-MM-DD'));\n        currentDate.add(1, 'day');\n    }\n    const results = await db.collection(collectionEnum.HISTORY_WORK_SCHEDULE)\n        .find({\n            \"date\": { $in: dateList },\n            \"is_active\": true\n        })\n        .toArray();\n\n    // node.warn(results);\n\n    const workingDays = results.map((item) => item.date);\n\n    // // คำนวณวันที่ทำงาน\n    const workingDates = [];\n    let currentDateLoop = moment(startDate); // เริ่ม loop ที่ startDate ใหม่\n\n    while (currentDateLoop.isSameOrBefore(endDate, 'day')) {\n        const formattedDate = currentDateLoop.format(\"YYYY-MM-DD\");\n\n        if (workingDays.includes(formattedDate)) {\n            workingDates.push(formattedDate);\n        }\n        currentDateLoop.add(1, 'day');\n    }\n\n    node.warn(`วันที่ทำงาน:${workingDates.length}`);\n    return workingDates.length\n}\nglobal.set('calculateCT', calculateCT);\n\nconst calculateTotalWorkMinutes = async (startTime, endTime) => {\n    node.warn(`calculateTotalWorkMinutes..........`);\n    node.warn(`startTime:${startTime}`);\n    node.warn(`endTime:${endTime}`);\n    // const startTime = moment(\"2023-09-09T16:55\");\n    // const endTime = moment(\"2023-09-10T08:12\");\n\n    const dateList = [];\n    let currentDate = moment(startTime);\n\n    while (currentDate.isSameOrBefore(endTime, 'day')) {\n        dateList.push(currentDate.format('YYYY-MM-DD'));\n        currentDate.add(1, 'day');\n    }\n\n    // node.warn(dateList);\n    const result = await db.collection(collectionEnum.HISTORY_WORK_SCHEDULE)\n        .find({\n            \"date\": { $in: dateList },\n            \"is_active\": true\n        })\n        .toArray();\n\n    let totalWorkHours = 0;\n\n    // node.warn(result);\n    for (const dayData of result) {\n        const schedule = dayData.schedule;\n        const date = moment(dayData.date);\n\n        let workStart, workEnd;\n\n        for (const key in schedule) {\n            const workPeriod = schedule[key];\n            workStart = date.clone().set({\n                'hour': workPeriod.start.hour,\n                'minute': workPeriod.start.minute\n            });\n            workEnd = date.clone().set({\n                'hour': workPeriod.end.hour,\n                'minute': workPeriod.end.minute\n            });\n\n            if (workStart.isBefore(endTime) && workEnd.isAfter(startTime)) {\n                if (workStart.isBefore(startTime)) {\n                    workStart = startTime.clone();\n                }\n                if (workEnd.isAfter(endTime)) {\n                    workEnd = endTime.clone();\n                }\n                totalWorkHours += workEnd.diff(workStart, 'hours', true);\n            }\n        }\n    }\n    const totalWorkMinutes = totalWorkHours * 60;\n    node.warn(`เวลาที่ใช้ไปทั้งหมด: ${totalWorkMinutes.toFixed(2)} นาที`);\n    return totalWorkMinutes.toFixed(2);\n}\nglobal.set('calculateTotalWorkMinutes', calculateTotalWorkMinutes);\n\nconst getTimeMove = async (zone) => {\n    switch (zone) {\n        case 1:\n            return zoneMoveTime.zone1MoveTime\n        case 2:\n            return zoneMoveTime.zone2MoveTime\n        case 3:\n            return zoneMoveTime.zone3MoveTime\n        case 4:\n            return zoneMoveTime.zone4MoveTime\n        case 5:\n            return zoneMoveTime.zone5MoveTime\n        case 6:\n            return zoneMoveTime.zone6MoveTime\n        case 7:\n            return zoneMoveTime.zone7MoveTime\n        case 8:\n            return zoneMoveTime.zone8MoveTime\n        case 9:\n            return zoneMoveTime.zone9MoveTime\n        case 10:\n            return zoneMoveTime.zone10MoveTime\n        case 11:\n            return zoneMoveTime.zone11MoveTime\n        case 12:\n            return zoneMoveTime.zone12MoveTime\n\n    }\n}\n\nconst getmaxBlockPerZone = async (zone) => {\n    let temp;\n    switch (zone) {\n        case 1:\n            return maxBlockPerZone.ZONE_1_1;\n        case 2:\n            return maxBlockPerZone.ZONE_2;\n        case 3:\n            return maxBlockPerZone.ZONE_3;\n        case 4:\n            return maxBlockPerZone.ZONE_4;\n        case 5:\n            return maxBlockPerZone.ZONE_5;\n        case 6:\n            return maxBlockPerZone.ZONE_6;\n        case 7:\n            return maxBlockPerZone.ZONE_7;\n        case 8:\n            return {\n                \"8N\": maxBlockPerZone.ZONE_8_N,\n                \"8BC\": maxBlockPerZone.ZONE_8_BC,\n                \"8R\": maxBlockPerZone.ZONE_8_R,\n            };\n        case 9:\n            return maxBlockPerZone.ZONE_9;\n        case 10:\n            return maxBlockPerZone.ZONE_10;\n        case 11:\n            return maxBlockPerZone.ZONE_11;\n        case 12:\n            return maxBlockPerZone.ZONE_12;\n        default:\n            return [null, null];\n    }\n}\n\n\nconst logModbus = async (value ,address) => {\n    try {\n        const newData = {\n            value,\n            address,\n            created_at: new Date(),\n            updated_at: null\n        }\n        await db.collection(collectionEnum.LOG_MODBUS).insertOne(newData);\n    } catch(e){\n        node.error(e)\n        node.warn(`log modbus fail value:${value} , address:${address}`);\n    }\n}\nglobal.set('logModbus', logModbus);\n// const getTempLastTimeInBlock = async (zone) => {\n//     let temp;\n//     switch (zone) {\n//         case 2:\n//             return await splitTemp(global.get(\"temp_time_zone_2\"));\n//         case 3:\n//             return await splitTemp(global.get(\"temp_time_zone_3\"));\n//         case 4:\n//             return await splitTemp(global.get(\"temp_time_zone_4\"));\n//         case 5:\n//             return await splitTemp(global.get(\"temp_time_zone_5\"));\n//         case 6:\n//             return await splitTemp(global.get(\"temp_time_zone_6\"));\n//         case 7:\n//             return await splitTemp(global.get(\"temp_time_zone_7\"));\n//         case 8:\n//             return await splitTemp(global.get(\"temp_time_zone_8\"));\n//         case 9:\n//             return await splitTemp(global.get(\"temp_time_zone_9\"));\n//         case 10:\n//             return await splitTemp(global.get(\"temp_time_zone_10\"));\n//         case 11:\n//             return await splitTemp(global.get(\"temp_time_zone_11\"));\n//         case 12:\n//             return await splitTemp(global.get(\"temp_time_zone_12\"));\n//         default:\n//             return [null, null];\n//     }\n// }\n\n// const splitTemp = async (temp) => {\n//     if (temp === undefined || temp === null) {\n//         return [null, null];\n//     }\n//     temp = temp.split(',');\n//     return [temp[0], temp[1]];\n// }\n\n// const setTempLastTimeInBlock = async (zone, entry_time, current_block) => {\n//     switch (zone) {\n//         case 2:\n//             return global.set(\"temp_time_zone_2\", `${entry_time},${current_block}`);\n//         case 3:\n//             return global.set(\"temp_time_zone_3\", `${entry_time},${current_block}`);\n//         case 4:\n//             return global.set(\"temp_time_zone_4\", `${entry_time},${current_block}`);\n//         case 5:\n//             return global.set(\"temp_time_zone_5\", `${entry_time},${current_block}`);\n//         case 6:\n//             return global.set(\"temp_time_zone_6\", `${entry_time},${current_block}`);\n//         case 7:\n//             return global.set(\"temp_time_zone_7\", `${entry_time},${current_block}`);\n//         case 8:\n//             return global.set(\"temp_time_zone_8\", `${entry_time},${current_block}`);\n//         case 9:\n//             return global.set(\"temp_time_zone_9\", `${entry_time},${current_block}`);\n//         case 10:\n//             return global.set(\"temp_time_zone_10\", `${entry_time},${current_block}`);\n//         case 11:\n//             return global.set(\"temp_time_zone_11\", `${entry_time},${current_block}`);\n//         case 12:\n//             return global.set(\"temp_time_zone_12\", `${entry_time},${current_block}`);\n//     }\n// }\n\nconst findPossibleMax = async (data, max) => {\n    let possibleMax = max;\n    while (data.includes(possibleMax)) {\n        possibleMax--;\n    }\n    return possibleMax;\n};",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst dotenv = global.get(\"env\").config().parsed;\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst lineEnum = global.get(\"LineEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst zoneMoveTime = global.get('ZoneMoveTime');\nconst maxBlockPerZone = global.get('maxBlockPerZone');\nconst maxBlock = 99;\n// ======================= Zone other ===========================//\nconst preAddObjectCheck = async (zoneIndex, startIndex) => {\n    // node.warn(`preAddObjectCheck(zoneIndex:${zoneIndex} ,startIndex${startIndex})`);\n    try {\n        let listNextBlocks = await findNextBlockZone(zoneIndex, startIndex);\n        // node.warn(`findNextBlockZone:${listNextBlocks}`);\n        // if (zoneIndex === 5) node.warn(`listNextBlocks:${listNextBlocks}`);\n        for (const result of listNextBlocks) {\n            for (const zone of result.zones) {\n                if (zone.zone_number !== zoneIndex) {\n                    continue;\n                }\n                const lastBlock = zone.blocks[zone.blocks.length - 1].block_number;\n                const newBlockNumber = lastBlock + 1;\n                zone.blocks[zone.blocks.length - 1].exit_time = new Date();\n\n                // Create new block\n                const newBlock = {\n                    block_number: newBlockNumber,\n                    entry_time: new Date(),\n                    exit_time: null\n                };\n                // const newBlocks = zone.blocks.slice();\n                zone.blocks.push(newBlock);\n                await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                    { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                    {\n                        $set: {\n                            current_block: newBlockNumber,\n                            \"zones.$.blocks\": zone.blocks\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(`Update newBlock(${newBlockNumber}) zome(${zoneIndex}) success!`);\n                }).catch((error) => {\n                    node.warn(error);\n                });\n            }\n        }\n    } catch (error) {\n        node.warn(error);\n    }\n}\n\nasync function findNextBlockZone(zone, startIndex, unitType) {\n    // node.warn(`findNextBlockZone(zone:${zone}, startIndex:${startIndex})`);\n    const maxBlock = await getmaxBlockPerZone(zone);\n    let results = [];\n    if (zone === 8){\n        let maxBlockType = maxBlock[unitType];\n        for (let index = startIndex; index <= maxBlockType; index++) {\n            const query = {\n                \"is_active\": true,\n                \"current_zone\": zone,\n                \"current_block\": index,\n                \"unit_type\": unitType\n            }\n            const result = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n            if (result.length === 0) {\n                // node.warn(\"Break!!\");\n                return results; // คืนค่าผลลัพธ์ที่ได้ก่อนหยุดการทำงาน\n            }\n            results.push(result[0])\n            if (index === maxBlock) {\n                results = [];\n            }\n        }\n        return results;\n    } else {\n        for (let index = startIndex; index <= maxBlock; index++) {\n            const query = {\n                \"is_active\": true,\n                \"current_zone\": zone,\n                \"current_block\": index\n            }\n            const result = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n            if (result.length === 0) {\n                // node.warn(\"Break!!\");\n                return results; // คืนค่าผลลัพธ์ที่ได้ก่อนหยุดการทำงาน\n            }\n            results.push(result[0])\n            if (index === maxBlock) {\n                results = [];\n            }\n        }\n        return results;\n    }\n}\n\nglobal.set('preAddObjectCheck', preAddObjectCheck);\n\n\n// ======================= Zone1 ===========================//\nconst preAddObjectCheckZone1 = async (lineNumber, startIndex) => {\n    let listNextBlocks = await findNextBlockZone1(lineNumber, startIndex);\n    // listNextBlocks.forEach(async (result) => {\n    for (const result of listNextBlocks) {\n        const lastBlock = result.blocks[result.blocks.length - 1].block_number;\n        const newBlockNumber = lastBlock + 1;\n\n        // Update exit_time of last block\n        result.blocks[result.blocks.length - 1].exit_time = new Date();\n\n        // Create new block\n        const newBlock = {\n            block_number: newBlockNumber,\n            entry_time: new Date(),\n            exit_time: null\n        };\n\n        // Push the new block to the blocks array\n        result.blocks.push(newBlock);\n\n        // Update the document in the collection with the new blocks and current_block value\n        await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).updateOne({ _id: result._id }, {\n            $set: {\n                blocks: result.blocks,\n                current_block: newBlockNumber\n            }\n        });\n    };\n};\n\n\nasync function findNextBlockZone1(lineNumber, startIndex) {\n    let results = [];\n    const maxBlock = await getmaxBlockPerZone(1);\n    for (let index = startIndex; index <= await maxBlock; index++) {\n        const query = {\n            \"is_active\": true,\n            \"current_block\": index,\n            \"lines.line_number\": lineNumber\n        }\n\n        const result = await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).find(query).toArray();\n        // node.warn(result);\n        if (result.length === 0) {\n            // node.warn(\"Break!!\");\n            return results; // คืนค่าผลลัพธ์ที่ได้ก่อนหยุดการทำงาน\n        }\n        results.push(result[0])\n        if (index === maxBlock) {\n            results = [];\n        }\n    }\n\n    return results;\n}\n\nglobal.set('preAddObjectCheckZone1', preAddObjectCheckZone1);\n\n\nconst compareDateTime = async (zone) => {\n    let maxBlock = await getmaxBlockPerZone(zone);\n    const timeMove = await getTimeMove(zone);\n    try {\n        const pipeline = [\n            { $match: { current_zone: zone, is_active: true } },\n            { $unwind: \"$zones\" },\n            { $unwind: \"$zones.blocks\" },\n            { $match: { \"zones.blocks.exit_time\": null, \"zones.zone_number\": zone } },\n            { $sort: { \"zones.blocks.entry_time\": 1 } },\n        ];\n\n        const results = await db.collection(collectionEnum.PRODUCTION_DATA).aggregate(pipeline).toArray();\n        const block_all = results.map(item => item.current_block);\n        maxBlock = await findPossibleMax(block_all, maxBlock);\n        // node.warn(block_all);\n        if (results.length === 0) {\n            return 0;\n        }\n        for (const result of results) {\n            if (result.current_block > maxBlock) {\n                continue;\n            } else if (result.current_block === maxBlock) {\n                maxBlock -= 1;\n                continue;\n            }\n            // const entry_time = moment(result.zones.blocks.entry_time);\n            const entry_time = new Date(result.zones.blocks.entry_time);\n            // node.warn(entry_time);\n            const currentTime = new Date();\n            const timeDifferenceInMinutes = (currentTime.getTime() - entry_time.getTime()) / (1000 * 60);\n            // node.warn(`timeDifferenceInMinutes:${timeDifferenceInMinutes}`);\n            if (timeDifferenceInMinutes > timeMove) {\n                node.warn(`Zone: ${zone} ,Time difference is greater than ${timeMove} minutes`);\n                return result.current_block;\n            } else {\n                return 0;\n            }\n        }\n        return 0;\n    } catch (error) {\n        node.error(error);\n        node.error(\"compare date time zone2 error message\", error);\n    }\n}\nglobal.set('compareDateTime', compareDateTime);\n\nconst createIndexArray = async (startIndex, endIndex, value) => {\n    const indexArray = [];\n    for (let i = startIndex; i <= endIndex; i++) {\n        indexArray.push({ index: i - startIndex + 1, address: i, value });\n    }\n    return indexArray;\n};\nglobal.set('createIndexArray', createIndexArray);\n\nconst createFloatIndexArray = async (startIndex, endIndex, value) => {\n    const indexArray = [];\n    for (let i = startIndex; i <= endIndex; i += 2) {\n        indexArray.push({ index: (i - startIndex) / 2 + 1, address: i, value });\n    }\n    return indexArray;\n};\nglobal.set('createFloatIndexArray', createFloatIndexArray);\n\n//save QR \nconst saveQrCode = async (payload) => {\n    const newQrData = await getQrData(payload);\n    await db.collection(collectionEnum.QR_DATA).insertOne(newQrData);\n    return newQrData;\n}\nglobal.set('saveQrCode', saveQrCode);\n\nasync function getQrData(payload) {\n    const qrCodeData = payload.qr_code_data;\n    const location = payload.location;\n    const splitPayload = qrCodeData.split(\";\");\n    const newQrData = {\n        qr_code: qrCodeData,\n        location: location,\n        data: {\n            house_code: splitPayload[0],\n            owner_name: splitPayload[1],\n            total_units: splitPayload[2],\n            units_number: splitPayload[3],\n            type: splitPayload[4],\n            mj_plan_date: new Date(),\n            installation_date: splitPayload[5],\n            house_type: splitPayload[6],\n            unit_type: splitPayload[7],\n            size: splitPayload[8],\n            remark_b: splitPayload[9],\n            remark_r: splitPayload[10],\n        },\n        created_at: new Date(),\n        updated_at: null,\n    };\n    return newQrData;\n}\nglobal.set('getQrData', getQrData);\n\n\nconst calculateCT = async (startDate, endDate) => {\n    const dateList = [];\n    let currentDate = moment(startDate);\n\n    while (currentDate.isSameOrBefore(endDate, 'day')) {\n        dateList.push(currentDate.format('YYYY-MM-DD'));\n        currentDate.add(1, 'day');\n    }\n    const results = await db.collection(collectionEnum.HISTORY_WORK_SCHEDULE)\n        .find({\n            \"date\": { $in: dateList },\n            \"is_active\": true\n        })\n        .toArray();\n\n    // node.warn(results);\n\n    const workingDays = results.map((item) => item.date);\n\n    // // คำนวณวันที่ทำงาน\n    const workingDates = [];\n    let currentDateLoop = moment(startDate); // เริ่ม loop ที่ startDate ใหม่\n\n    while (currentDateLoop.isSameOrBefore(endDate, 'day')) {\n        const formattedDate = currentDateLoop.format(\"YYYY-MM-DD\");\n\n        if (workingDays.includes(formattedDate)) {\n            workingDates.push(formattedDate);\n        }\n        currentDateLoop.add(1, 'day');\n    }\n\n    node.warn(`วันที่ทำงาน:${workingDates.length}`);\n    return workingDates.length\n}\nglobal.set('calculateCT', calculateCT);\n\nconst calculateTotalWorkMinutes = async (startTime, endTime) => {\n    // node.warn(`calculateTotalWorkMinutes..........`);\n    // node.warn(`startTime:${startTime}`);\n    // node.warn(`endTime:${endTime}`);\n    // const startTime = moment(\"2023-09-09T16:55\");\n    // const endTime = moment(\"2023-09-10T08:12\");\n\n    const dateList = [];\n    let currentDate = moment(startTime);\n\n    while (currentDate.isSameOrBefore(endTime, 'day')) {\n        dateList.push(currentDate.format('YYYY-MM-DD'));\n        currentDate.add(1, 'day');\n    }\n\n    // node.warn(dateList);\n    const result = await db.collection(collectionEnum.HISTORY_WORK_SCHEDULE)\n        .find({\n            \"date\": { $in: dateList },\n            \"is_active\": true\n        })\n        .toArray();\n\n    let totalWorkHours = 0;\n\n    // node.warn(result);\n    for (const dayData of result) {\n        const schedule = dayData.schedule;\n        const date = moment(dayData.date);\n\n        let workStart, workEnd;\n\n        for (const key in schedule) {\n            const workPeriod = schedule[key];\n            workStart = date.clone().set({\n                'hour': workPeriod.start.hour,\n                'minute': workPeriod.start.minute\n            });\n            workEnd = date.clone().set({\n                'hour': workPeriod.end.hour,\n                'minute': workPeriod.end.minute\n            });\n\n            if (workStart.isBefore(endTime) && workEnd.isAfter(startTime)) {\n                if (workStart.isBefore(startTime)) {\n                    workStart = startTime.clone();\n                }\n                if (workEnd.isAfter(endTime)) {\n                    workEnd = endTime.clone();\n                }\n                totalWorkHours += workEnd.diff(workStart, 'hours', true);\n            }\n        }\n    }\n    const totalWorkMinutes = totalWorkHours * 60;\n    // node.warn(`เวลาที่ใช้ไปทั้งหมด: ${totalWorkMinutes.toFixed(2)} นาที`);\n    return totalWorkMinutes.toFixed(2);\n}\nglobal.set('calculateTotalWorkMinutes', calculateTotalWorkMinutes);\n\nconst getTimeMove = async (zone) => {\n    switch (zone) {\n        case 1:\n            return zoneMoveTime.zone1MoveTime\n        case 2:\n            return zoneMoveTime.zone2MoveTime\n        case 3:\n            return zoneMoveTime.zone3MoveTime\n        case 4:\n            return zoneMoveTime.zone4MoveTime\n        case 5:\n            return zoneMoveTime.zone5MoveTime\n        case 6:\n            return zoneMoveTime.zone6MoveTime\n        case 7:\n            return zoneMoveTime.zone7MoveTime\n        case 8:\n            return zoneMoveTime.zone8MoveTime\n        case 9:\n            return zoneMoveTime.zone9MoveTime\n        case 10:\n            return zoneMoveTime.zone10MoveTime\n        case 11:\n            return zoneMoveTime.zone11MoveTime\n        case 12:\n            return zoneMoveTime.zone12MoveTime\n\n    }\n}\n\nconst getmaxBlockPerZone = async (zone) => {\n    let temp;\n    switch (zone) {\n        case 1:\n            return maxBlockPerZone.ZONE_1_1;\n        case 2:\n            return maxBlockPerZone.ZONE_2;\n        case 3:\n            return maxBlockPerZone.ZONE_3;\n        case 4:\n            return maxBlockPerZone.ZONE_4;\n        case 5:\n            return maxBlockPerZone.ZONE_5;\n        case 6:\n            return maxBlockPerZone.ZONE_6;\n        case 7:\n            return maxBlockPerZone.ZONE_7;\n        case 8:\n            return {\n                \"8N\": maxBlockPerZone.ZONE_8_N,\n                \"8BC\": maxBlockPerZone.ZONE_8_BC,\n                \"8R\": maxBlockPerZone.ZONE_8_R,\n            };\n        case 9:\n            return maxBlockPerZone.ZONE_9;\n        case 10:\n            return maxBlockPerZone.ZONE_10;\n        case 11:\n            return maxBlockPerZone.ZONE_11;\n        case 12:\n            return maxBlockPerZone.ZONE_12;\n        default:\n            return [null, null];\n    }\n}\n\n\nconst logModbus = async (value ,address) => {\n    try {\n        const newData = {\n            value,\n            address,\n            created_at: new Date(),\n            updated_at: null\n        }\n        await db.collection(collectionEnum.LOG_MODBUS).insertOne(newData);\n    } catch(e){\n        node.error(e)\n        node.warn(`log modbus fail value:${value} , address:${address}`);\n    }\n}\nglobal.set('logModbus', logModbus);\n// const getTempLastTimeInBlock = async (zone) => {\n//     let temp;\n//     switch (zone) {\n//         case 2:\n//             return await splitTemp(global.get(\"temp_time_zone_2\"));\n//         case 3:\n//             return await splitTemp(global.get(\"temp_time_zone_3\"));\n//         case 4:\n//             return await splitTemp(global.get(\"temp_time_zone_4\"));\n//         case 5:\n//             return await splitTemp(global.get(\"temp_time_zone_5\"));\n//         case 6:\n//             return await splitTemp(global.get(\"temp_time_zone_6\"));\n//         case 7:\n//             return await splitTemp(global.get(\"temp_time_zone_7\"));\n//         case 8:\n//             return await splitTemp(global.get(\"temp_time_zone_8\"));\n//         case 9:\n//             return await splitTemp(global.get(\"temp_time_zone_9\"));\n//         case 10:\n//             return await splitTemp(global.get(\"temp_time_zone_10\"));\n//         case 11:\n//             return await splitTemp(global.get(\"temp_time_zone_11\"));\n//         case 12:\n//             return await splitTemp(global.get(\"temp_time_zone_12\"));\n//         default:\n//             return [null, null];\n//     }\n// }\n\n// const splitTemp = async (temp) => {\n//     if (temp === undefined || temp === null) {\n//         return [null, null];\n//     }\n//     temp = temp.split(',');\n//     return [temp[0], temp[1]];\n// }\n\n// const setTempLastTimeInBlock = async (zone, entry_time, current_block) => {\n//     switch (zone) {\n//         case 2:\n//             return global.set(\"temp_time_zone_2\", `${entry_time},${current_block}`);\n//         case 3:\n//             return global.set(\"temp_time_zone_3\", `${entry_time},${current_block}`);\n//         case 4:\n//             return global.set(\"temp_time_zone_4\", `${entry_time},${current_block}`);\n//         case 5:\n//             return global.set(\"temp_time_zone_5\", `${entry_time},${current_block}`);\n//         case 6:\n//             return global.set(\"temp_time_zone_6\", `${entry_time},${current_block}`);\n//         case 7:\n//             return global.set(\"temp_time_zone_7\", `${entry_time},${current_block}`);\n//         case 8:\n//             return global.set(\"temp_time_zone_8\", `${entry_time},${current_block}`);\n//         case 9:\n//             return global.set(\"temp_time_zone_9\", `${entry_time},${current_block}`);\n//         case 10:\n//             return global.set(\"temp_time_zone_10\", `${entry_time},${current_block}`);\n//         case 11:\n//             return global.set(\"temp_time_zone_11\", `${entry_time},${current_block}`);\n//         case 12:\n//             return global.set(\"temp_time_zone_12\", `${entry_time},${current_block}`);\n//     }\n// }\n\nconst findPossibleMax = async (data, max) => {\n    let possibleMax = max;\n    while (data.includes(possibleMax)) {\n        possibleMax--;\n    }\n    return possibleMax;\n};",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -9037,8 +9037,8 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 190,
-        "y": 100,
+        "x": 1590,
+        "y": 80,
         "wires": [
             []
         ]
@@ -9054,8 +9054,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 370,
-        "y": 100,
+        "x": 1770,
+        "y": 80,
         "wires": [
             []
         ]
@@ -9071,8 +9071,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 580,
-        "y": 100,
+        "x": 1980,
+        "y": 80,
         "wires": [
             [
                 "55a52eb870678813"
@@ -9092,35 +9092,11 @@
         "keepMsgProperties": false,
         "delayOnStart": false,
         "startDelayTime": "",
-        "x": 810,
-        "y": 100,
+        "x": 2210,
+        "y": 80,
         "wires": [
             [],
             []
-        ]
-    },
-    {
-        "id": "8df7d69dd90d0688",
-        "type": "inject",
-        "z": "b1b087dc079885be",
-        "name": "",
-        "props": [
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 190,
-        "y": 180,
-        "wires": [
-            [
-                "73f90e2eb48002e3"
-            ]
         ]
     },
     {
@@ -9135,7 +9111,7 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 180,
+        "y": 140,
         "wires": [
             [
                 "fa5488d33924204c"
@@ -9154,7 +9130,7 @@
         "finalize": "",
         "libs": [],
         "x": 580,
-        "y": 180,
+        "y": 140,
         "wires": [
             [
                 "40d1cebb5f5f9db7"
@@ -9175,7 +9151,7 @@
         "delayOnStart": false,
         "startDelayTime": "",
         "x": 810,
-        "y": 180,
+        "y": 140,
         "wires": [
             [],
             []
@@ -9198,11 +9174,9 @@
         "onceDelay": 0.1,
         "topic": "",
         "x": 190,
-        "y": 260,
+        "y": 180,
         "wires": [
-            [
-                "e9a85bd778ae7df5"
-            ]
+            []
         ]
     },
     {
@@ -9210,14 +9184,14 @@
         "type": "function",
         "z": "b1b087dc079885be",
         "name": "Passed Station",
-        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\nconst zone1_production_data = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\n\nlet sum = 0;\n\nsum += await zone1();\nsum += await zone2_7();\nsum += await zone9_12();\n\n// --------------- zone 1 ---------------//\nasync function zone1(){\n    let sumzome1 = 0;\n    const initIndex_zone1 = await createIndexArray(268, 269, 0);\n    for (const item of zone1_production_data) {\n        if (item.exit_time !== null) {\n            const exitTime = moment(item.exit_time);\n            if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                for (const indexItem of initIndex_zone1) {\n                    if (item.lines.line_number === indexItem.index) {\n                        indexItem.value += 1;\n                    }\n                }\n            }\n        }\n    }\n\n    for (const index of initIndex_zone1) {\n        buf.writeUInt16BE(index.value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': index.address, 'quantity': addresses };\n        node.send(msg);\n        sumzome1 += index.value;\n    }\n    return sumzome1;\n}\n// --------------- end zone 1 ---------------//\n\n// --------------- zone 2 - 7 ---------------//\nasync function zone2_7(){\n    let sum2_7 = 0;\n    const initIndex = await createIndexArray(270, 275, 0);\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number >= 2 && zone.zone_number <= 7) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    for (const indexItem of initIndex) {\n                        if (zone.zone_number === indexItem.index + 1) {\n                            indexItem.value += 1;\n                        }\n                    }\n                }\n            }\n        }\n    }\n    // node.warn(initIndex);\n    for (const index of initIndex) {\n        buf.writeUInt16BE(index.value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': index.address, 'quantity': addresses };\n        node.send(msg);\n        sum2_7 += index.value;\n    }\n    return sum2_7;\n}\n\n// --------------- end zone 2 - 7 ---------------//\n\n// --------------- zone 8 ---------------//\nasync function zone8() {\n    let sum8 = 0;\n    let typeN = 0;\n    let typeBC = 0;\n    let typeR = 0;\n\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number === 8) {\n                if (item.unit_type === 'N') {\n                    typeN += 1;\n                } else if (item.unit_type === 'B,C') {\n                    typeBC += 1;\n                } else if (item.unit_type === 'R') {\n                    typeR += 1;\n                }\n                sum8 += 1;\n            }\n        }\n    }\n    await sendSingle(typeN, 276)\n    await sendSingle(typeBC, 277)\n    await sendSingle(typeR, 278)\n}\n    async function zone9_12() {\n        let sum9_12 = 0;\n        const initIndex = await createIndexArray(279, 282, 0);\n        for (const item of production_data) {\n            for (const zone of item.zones) {\n                if (zone.exit_time !== null && zone.zone_number >= 9 && zone.zone_number <= 12) {\n                    const exitTime = moment(zone.exit_time);\n                    if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                        for (const indexItem of initIndex) {\n                            if (zone.zone_number === indexItem.index + 8) {\n                                indexItem.value += 1;\n                            }\n                        }\n                    }\n                }\n            }\n        }\n        // node.warn(initIndex);\n        for (const index of initIndex) {\n            buf.writeUInt16BE(index.value);\n            const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n            msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': index.address, 'quantity': addresses };\n            node.send(msg);\n            sum9_12 += index.value;\n        }\n        return sum9_12;\n    }\n\n\nconst average = sum / 15;\nawait sendSingle(average, 314)\n\n\nasync function sendSingle(average, address) {\n    var fc = 6;\n    var sa = address;    //Modbus ADRRESS do want to write\n    var addresses = 1;     //Number of ADRRESS do want to write\n    var value = average;    //Value do want to command\n    var buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
+        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\nconst zone1_production_data = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\n\nlet sum = 0;\n\nsum += await zone1();\nsum += await zone2_7();\nsum += await zone9_12();\n\n// --------------- zone 1 ---------------//\nasync function zone1(){\n    let sumzome1 = 0;\n    const initIndex_zone1 = await createIndexArray(268, 269, 0);\n    for (const item of zone1_production_data) {\n        if (item.exit_time !== null) {\n            const exitTime = moment(item.exit_time);\n            if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                for (const indexItem of initIndex_zone1) {\n                    if (item.lines.line_number === indexItem.index) {\n                        indexItem.value += 1;\n                    }\n                }\n            }\n        }\n    }\n\n    for (const index of initIndex_zone1) {\n        buf.writeUInt16BE(index.value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': index.address, 'quantity': addresses };\n        node.send(msg);\n        sumzome1 += index.value;\n    }\n    return sumzome1;\n}\n// --------------- end zone 1 ---------------//\n\n// --------------- zone 2 - 7 ---------------//\nasync function zone2_7(){\n    let sum2_7 = 0;\n    const initIndex = await createIndexArray(270, 275, 0);\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number >= 2 && zone.zone_number <= 7) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    for (const indexItem of initIndex) {\n                        if (zone.zone_number === indexItem.index + 1) {\n                            indexItem.value += 1;\n                        }\n                    }\n                }\n            }\n        }\n    }\n    // node.warn(initIndex);\n    for (const index of initIndex) {\n        buf.writeUInt16BE(index.value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': index.address, 'quantity': addresses };\n        node.send(msg);\n        sum2_7 += index.value;\n    }\n    return sum2_7;\n}\n\n// --------------- end zone 2 - 7 ---------------//\n\n// --------------- zone 8 ---------------//\nasync function zone8() {\n    let sum8 = 0;\n    let typeN = 0;\n    let typeBC = 0;\n    let typeR = 0;\n\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number === 8) {\n                if (item.unit_type === 'N') {\n                    typeN += 1;\n                } else if (item.unit_type === 'B,C') {\n                    typeBC += 1;\n                } else if (item.unit_type === 'R') {\n                    typeR += 1;\n                }\n                sum8 += 1;\n            }\n        }\n    }\n    await sendSingle(typeN, 276)\n    await sendSingle(typeBC, 277)\n    await sendSingle(typeR, 278)\n}\n    async function zone9_12() {\n        let sum9_12 = 0;\n        const initIndex = await createIndexArray(279, 282, 0);\n        for (const item of production_data) {\n            for (const zone of item.zones) {\n                if (zone.exit_time !== null && zone.zone_number >= 9 && zone.zone_number <= 12) {\n                    const exitTime = moment(zone.exit_time);\n                    if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                        for (const indexItem of initIndex) {\n                            if (zone.zone_number === indexItem.index + 8) {\n                                indexItem.value += 1;\n                            }\n                        }\n                    }\n                }\n            }\n        }\n        // node.warn(initIndex);\n        for (const index of initIndex) {\n            buf.writeUInt16BE(index.value);\n            const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n            msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': index.address, 'quantity': addresses };\n            node.send(msg);\n            sum9_12 += index.value;\n        }\n        return sum9_12;\n    }\n\n\nconst average = sum / 15;\nawait sendSingle(average, 314)\n\n\nasync function sendSingle(average, address) {\n    const fc = 6;\n    const sa = address;    //Modbus ADRRESS do want to write\n    const addresses = 1;     //Number of ADRRESS do want to write\n    const value = average;    //Value do want to command\n    const buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    // node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 600,
-        "y": 340,
+        "y": 220,
         "wires": [
             [
                 "dfd277e691a99622"
@@ -9238,7 +9212,7 @@
         "delayOnStart": false,
         "startDelayTime": "",
         "x": 810,
-        "y": 340,
+        "y": 260,
         "wires": [
             [],
             []
@@ -9260,10 +9234,13 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 230,
-        "y": 540,
+        "x": 150,
+        "y": 140,
         "wires": [
-            []
+            [
+                "73f90e2eb48002e3",
+                "e9a85bd778ae7df5"
+            ]
         ]
     },
     {
@@ -9279,8 +9256,8 @@
         "keepMsgProperties": false,
         "delayOnStart": false,
         "startDelayTime": "",
-        "x": 810,
-        "y": 240,
+        "x": 1970,
+        "y": 140,
         "wires": [
             [],
             []
@@ -9291,14 +9268,14 @@
         "type": "function",
         "z": "b1b087dc079885be",
         "name": "CT",
-        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\nconst zone1ProductionData = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\n\nlet sum = 0;\nconst result_1 = await zone1();\nconst result_2_7 = await zone2_7();\nconst result_8 = await zone8();\nconst result_9_12 = await zone9_12();\nsum += await result_1.sumZone1;\nsum += await result_2_7.sum2_7;\nsum += await result_8;\nsum += await result_9_12.sum9_12;\n\nasync function zone1(){\n    let sumZone1 = 0;\n    let countLineZone1 = new Array(2).fill(0);\n    const initIndexZone1 = await createIndexArray(283, 284, 0);\n    for (const item of zone1ProductionData) {\n        if (item.exit_time !== null) {\n            const exitTime = moment(item.exit_time);\n            if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                for (const indexItem of initIndexZone1) {\n                    if (item.lines.line_number === indexItem.index) {\n                        const duration = moment.duration(moment(item.exit_time) - moment(item.entry_time)).asMinutes();\n                        indexItem.value += duration;\n                        countLineZone1[indexItem.index - 1] += 1;\n                    }\n                }\n            }\n        }\n    }\n\n    initIndexZone1.forEach((item, index) => {\n        if (item.value) {\n            item.value = Number((item.value / countLineZone1[index]).toFixed(1));\n        } else {\n            item.value = 0;\n        }\n    });\n\n    for (const index of initIndexZone1) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone1 += index.value;\n    }\n    return {sumZone1, countLineZone1};\n}\n\n\nasync function zone2_7(){\n    let sum2_7 = 0;\n    let countLine2_7 = new Array(11).fill(0);\n    const initIndex = await createIndexArray(285, 290, 0);\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number >= 2 && zone.zone_number <= 7) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    for (const indexItem of initIndex) {\n                        if (zone.zone_number === indexItem.index + 1) {\n                            const duration = moment.duration(moment(zone.exit_time) - moment(zone.entry_time)).asMinutes();\n                            indexItem.value += duration;\n                            countLine2_7[indexItem.index - 1] += 1;\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n\n    // node.warn(count_line);\n    initIndex.forEach((item, index) => {\n        if (item.value) {\n            item.value = Number((item.value / countLine2_7[index]).toFixed(1));\n        } else {\n            item.value = 0;\n        }\n    });\n    // node.warn(initIndex);\n    for (const index of initIndex) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeFloatBE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sum2_7 += index.value;\n    }\n    return {sum2_7, countLine2_7}\n}\n\nasync function zone8() {\n    let countLineN = new Array(1).fill(0);\n    let countLineBC = new Array(1).fill(0);\n    let countLineR = new Array(1).fill(0);\n    let typeN = 0;\n    let typeBC = 0;\n    let typeR = 0;\n    \n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number === 8) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    const duration = moment.duration(moment(zone.exit_time) - moment(zone.entry_time)).asMinutes();\n                    if (item.unit_type === 'N') {\n                        typeN += 1;\n                        countLineN[0] += 1;\n                    } else if (item.unit_type === 'B,C') {\n                        typeBC += 1;\n                        countLineBC[0] += 1;\n                    } else if (item.unit_type === 'R') {\n                        typeR += 1;\n                        countLineR[0] += 1;\n                    }\n                }\n            }\n        }\n    }\n\n    let valueTypeN = 0;\n    let valueTypeBC = 0;\n    let valueTypeR = 0;\n    if (typeN > 0){\n        valueTypeN = Number((typeN / countLineN[0]).toFixed(1));\n    } else {\n        valueTypeN = 0;\n    }\n    if (typeBC > 0) {\n        valueTypeBC = Number((typeN / countLineN[0]).toFixed(1));\n    } else {\n        valueTypeBC = 0;\n    }\n    if (typeR > 0) {\n        valueTypeR = Number((typeN / countLineN[0]).toFixed(1));\n    } else {\n        valueTypeR = 0;\n    }\n    sendSingle(valueTypeN, 291);\n    sendSingle(valueTypeBC, 292);\n    sendSingle(valueTypeR, 293);\n    return (valueTypeN + valueTypeBC + valueTypeR)\n}\n\nasync function zone9_12(){\n    let sum9_12 = 0;\n    let countLine9_12 = new Array(11).fill(0);\n    const initIndex = await createIndexArray(294, 297, 0);\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number >= 9 && zone.zone_number <= 12) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    for (const indexItem of initIndex) {\n                        if (zone.zone_number === indexItem.index + 1) {\n                            const duration = moment.duration(moment(zone.exit_time) - moment(zone.entry_time)).asMinutes();\n                            indexItem.value += duration;\n                            countLine9_12[indexItem.index - 1] += 1;\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n\n    // node.warn(count_line);\n    initIndex.forEach((item, index) => {\n        if (item.value) {\n            item.value = Number((item.value / countLine9_12[index]).toFixed(1));\n        } else {\n            item.value = 0;\n        }\n    });\n    // node.warn(initIndex);\n    for (const index of initIndex) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sum9_12 += index.value;\n    }\n    return {sum9_12, countLine9_12}\n}\n\nconst average = sum / 15;\nawait sendSingle(sum, 315)\nasync function sendSingle(average, address) {\n    var fc = 6;\n    var sa = address;    //Modbus ADRRESS do want to write\n    var addresses = 1;     //Number of ADRRESS do want to write\n    var value = average;    //Value do want to command\n    var buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
+        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\nconst zone1ProductionData = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\n\nlet sum = 0;\nconst result_1 = await zone1();\nconst result_2_7 = await zone2_7();\nconst result_8 = await zone8();\nconst result_9_12 = await zone9_12();\nsum += await result_1.sumZone1;\nsum += await result_2_7.sum2_7;\nsum += await result_8;\nsum += await result_9_12.sum9_12;\n\nasync function zone1(){\n    let sumZone1 = 0;\n    let countLineZone1 = new Array(2).fill(0);\n    const initIndexZone1 = await createIndexArray(283, 284, 0);\n    for (const item of zone1ProductionData) {\n        if (item.exit_time !== null) {\n            const exitTime = moment(item.exit_time);\n            if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                for (const indexItem of initIndexZone1) {\n                    if (item.lines.line_number === indexItem.index) {\n                        const duration = moment.duration(moment(item.exit_time) - moment(item.entry_time)).asMinutes();\n                        indexItem.value += duration;\n                        countLineZone1[indexItem.index - 1] += 1;\n                    }\n                }\n            }\n        }\n    }\n\n    initIndexZone1.forEach((item, index) => {\n        if (item.value) {\n            item.value = Number((item.value / countLineZone1[index]).toFixed(1));\n        } else {\n            item.value = 0;\n        }\n    });\n\n    for (const index of initIndexZone1) {\n        const sa = index.address;    //Modbus ADRRESS do want to write\n        const value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone1 += index.value;\n    }\n    return {sumZone1, countLineZone1};\n}\n\n\nasync function zone2_7(){\n    let sum2_7 = 0;\n    let countLine2_7 = new Array(11).fill(0);\n    const initIndex = await createIndexArray(285, 290, 0);\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number >= 2 && zone.zone_number <= 7) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    for (const indexItem of initIndex) {\n                        if (zone.zone_number === indexItem.index + 1) {\n                            const duration = moment.duration(moment(zone.exit_time) - moment(zone.entry_time)).asMinutes();\n                            indexItem.value += duration;\n                            countLine2_7[indexItem.index - 1] += 1;\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n\n    // node.warn(count_line);\n    initIndex.forEach((item, index) => {\n        if (item.value) {\n            item.value = Number((item.value / countLine2_7[index]).toFixed(1));\n        } else {\n            item.value = 0;\n        }\n    });\n    // node.warn(initIndex);\n    for (const index of initIndex) {\n        const sa = index.address;    //Modbus ADRRESS do want to write\n        const value = index.value;    //Value do want to command\n        buf.writeFloatBE(value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sum2_7 += index.value;\n    }\n    return {sum2_7, countLine2_7}\n}\n\nasync function zone8() {\n    let countLineN = new Array(1).fill(0);\n    let countLineBC = new Array(1).fill(0);\n    let countLineR = new Array(1).fill(0);\n    let typeN = 0;\n    let typeBC = 0;\n    let typeR = 0;\n    \n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number === 8) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    const duration = moment.duration(moment(zone.exit_time) - moment(zone.entry_time)).asMinutes();\n                    if (item.unit_type === 'N') {\n                        typeN += 1;\n                        countLineN[0] += 1;\n                    } else if (item.unit_type === 'B,C') {\n                        typeBC += 1;\n                        countLineBC[0] += 1;\n                    } else if (item.unit_type === 'R') {\n                        typeR += 1;\n                        countLineR[0] += 1;\n                    }\n                }\n            }\n        }\n    }\n\n    let valueTypeN = 0;\n    let valueTypeBC = 0;\n    let valueTypeR = 0;\n    if (typeN > 0){\n        valueTypeN = Number((typeN / countLineN[0]).toFixed(1));\n    } else {\n        valueTypeN = 0;\n    }\n    if (typeBC > 0) {\n        valueTypeBC = Number((typeN / countLineN[0]).toFixed(1));\n    } else {\n        valueTypeBC = 0;\n    }\n    if (typeR > 0) {\n        valueTypeR = Number((typeN / countLineN[0]).toFixed(1));\n    } else {\n        valueTypeR = 0;\n    }\n    sendSingle(valueTypeN, 291);\n    sendSingle(valueTypeBC, 292);\n    sendSingle(valueTypeR, 293);\n    return (valueTypeN + valueTypeBC + valueTypeR)\n}\n\nasync function zone9_12(){\n    let sum9_12 = 0;\n    let countLine9_12 = new Array(11).fill(0);\n    const initIndex = await createIndexArray(294, 297, 0);\n    for (const item of production_data) {\n        for (const zone of item.zones) {\n            if (zone.exit_time !== null && zone.zone_number >= 9 && zone.zone_number <= 12) {\n                const exitTime = moment(zone.exit_time);\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    for (const indexItem of initIndex) {\n                        if (zone.zone_number === indexItem.index + 1) {\n                            const duration = moment.duration(moment(zone.exit_time) - moment(zone.entry_time)).asMinutes();\n                            indexItem.value += duration;\n                            countLine9_12[indexItem.index - 1] += 1;\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n\n    // node.warn(count_line);\n    initIndex.forEach((item, index) => {\n        if (item.value) {\n            item.value = Number((item.value / countLine9_12[index]).toFixed(1));\n        } else {\n            item.value = 0;\n        }\n    });\n    // node.warn(initIndex);\n    for (const index of initIndex) {\n        const sa = index.address;    //Modbus ADRRESS do want to write\n        const value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sum9_12 += index.value;\n    }\n    return {sum9_12, countLine9_12}\n}\n\nconst average = sum / 15;\nawait sendSingle(sum, 315)\nasync function sendSingle(average, address) {\n    const fc = 6;\n    const sa = address;    //Modbus ADRRESS do want to write\n    const addresses = 1;     //Number of ADRRESS do want to write\n    const value = average;    //Value do want to command\n    const buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    // node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 570,
-        "y": 420,
+        "y": 260,
         "wires": [
             [
                 "dfd277e691a99622"
@@ -9306,38 +9283,18 @@
         ]
     },
     {
-        "id": "bf2416fdb21caa4c",
-        "type": "modbus-flex-write",
-        "z": "b1b087dc079885be",
-        "name": "",
-        "showStatusActivities": false,
-        "showErrors": false,
-        "showWarnings": true,
-        "server": "51a1a8e59174b5dc",
-        "emptyMsgOnFail": false,
-        "keepMsgProperties": false,
-        "delayOnStart": false,
-        "startDelayTime": "",
-        "x": 810,
-        "y": 400,
-        "wires": [
-            [],
-            []
-        ]
-    },
-    {
         "id": "c43286871dab77e9",
         "type": "function",
         "z": "b1b087dc079885be",
         "name": "TT",
-        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\nconst zone1_production_data = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\nlet sumValue = 0;\nsumValue += await zone1(zone1_production_data);\nsumValue += await zone2_7(production_data);\nsumValue += await zone8(production_data);\nsumValue += await zone9_12(production_data);\n\nasync function zone1(zone1_production_data) {\n    let sumZone1 = 0;\n    const initIndex_zone1 = await createIndexArray(298, 299, 0);\n    for (const data of zone1_production_data) {\n        for (const item of initIndex_zone1) {\n            if (data.line_number === item.index) {\n                const firstTime = moment(data.latest_entry_times[1]);\n                const secondTime = moment(data.latest_entry_times[0]);\n                const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n                item.value = Math.round(duration);\n            }\n        }\n    }\n    for (const index of initIndex_zone1) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone1 += index.value;\n    }\n    return sumZone1;\n}\n\nasync function zone2_7(production_data) {\n    let sumZone2_7 = 0;\n    const initIndex = await createIndexArray(300, 305, 0);\n    for (const zone of production_data) {\n        if (zone.zone_number >= 2 && zone.zone_number <= 7) {\n            for (const indexItem of initIndex) {\n                if (zone.zone_number === indexItem.index + 1) {\n                    const firstTime = moment(zone.latest_entry_times[0]);\n                    const secondTime = moment(zone.latest_entry_times[1]);\n                    const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n                    indexItem.value = Math.round(duration);\n                }\n            }\n        }\n    }\n    for (const index of initIndex) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone2_7 += index.value;\n    }\n    return sumZone2_7;\n}\n\nasync function zone8(production_data){\n    let sumZone8 = 0;\n    for (const zone of production_data) {\n        if (zone.zone_number === 8) {\n            const firstTime = moment(zone.latest_entry_times[0]);\n            const secondTime = moment(zone.latest_entry_times[1]);\n            const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n            const partIntDuration = Math.round(duration);\n            if (zone.unit_type === 'N') {\n                await sendSingleValue(partIntDuration, 306);\n            } else if (zone.unit_type === 'B,C') {\n                await sendSingleValue(partIntDuration, 307);\n            } else if (zone.unit_type === 'R') {\n                await sendSingleValue(partIntDuration, 308);\n            }\n            sumZone8 += partIntDuration;\n        }\n    }\n    return sumZone8;\n}\n\nasync function zone9_12(production_data){\n    let sumZone9 = 0;\n    const initIndex = await createIndexArray(309, 312, 0);\n    for (const zone of production_data) {\n        if (zone.zone_number >= 2 && zone.zone_number <= 7) {\n            for (const indexItem of initIndex) {\n                if (zone.zone_number === indexItem.index + 8) {\n                    const firstTime = moment(zone.latest_entry_times[0]);\n                    const secondTime = moment(zone.latest_entry_times[1]);\n                    const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n                    indexItem.value = Math.round(duration);\n                }\n            }\n        }\n    }\n    for (const index of initIndex) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone9 += index.value;\n    }\n    return sumZone9;\n}\n\nawait sendSingleValue(sumValue / 15 ,316);\n\nasync function sendSingleValue(average, address) {\n    var fc = 6;\n    var sa = address;    //Modbus ADRRESS do want to write\n    var addresses = 1;     //Number of ADRRESS do want to write\n    var value = average;    //Value do want to command\n    var buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    // node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
+        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\nconst zone1_production_data = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\nlet sumValue = 0;\nsumValue += await zone1(zone1_production_data);\nsumValue += await zone2_7(production_data);\nsumValue += await zone8(production_data);\nsumValue += await zone9_12(production_data);\n\nasync function zone1(zone1_production_data) {\n    let sumZone1 = 0;\n    const initIndex_zone1 = await createIndexArray(298, 299, 0);\n    for (const data of zone1_production_data) {\n        for (const item of initIndex_zone1) {\n            if (data.line_number === item.index) {\n                const firstTime = moment(data.latest_entry_times[1]);\n                const secondTime = moment(data.latest_entry_times[0]);\n                const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n                item.value = Math.round(duration);\n            }\n        }\n    }\n    for (const index of initIndex_zone1) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone1 += index.value;\n    }\n    return sumZone1;\n}\n\nasync function zone2_7(production_data) {\n    let sumZone2_7 = 0;\n    const initIndex = await createIndexArray(300, 305, 0);\n    for (const zone of production_data) {\n        if (zone.zone_number >= 2 && zone.zone_number <= 7) {\n            for (const indexItem of initIndex) {\n                if (zone.zone_number === indexItem.index + 1) {\n                    const firstTime = moment(zone.latest_entry_times[0]);\n                    const secondTime = moment(zone.latest_entry_times[1]);\n                    const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n                    let positiveValue = Math.abs(duration);\n                    let integerValue = Math.floor(positiveValue);\n                    // node.warn(`firstTime:${firstTime}`);\n                    // node.warn(`secondTime:${secondTime}`);\n                    // node.warn(`duration:${duration}`);\n                    // node.warn(`----------------------------------------`);\n                    indexItem.value = integerValue;\n                }\n            }\n        }\n    }\n    for (const index of initIndex) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone2_7 += index.value;\n    }\n    return sumZone2_7;\n}\n\nasync function zone8(production_data) {\n    let sumZone8 = 0;\n    for (const zone of production_data) {\n        if (zone.zone_number === 8) {\n            const firstTime = moment(zone.latest_entry_times[0]);\n            const secondTime = moment(zone.latest_entry_times[1]);\n            const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n            const partIntDuration = Math.round(duration);\n            if (zone.unit_type === 'N') {\n                await sendSingleValue(partIntDuration, 306);\n            } else if (zone.unit_type === 'B,C') {\n                await sendSingleValue(partIntDuration, 307);\n            } else if (zone.unit_type === 'R') {\n                await sendSingleValue(partIntDuration, 308);\n            }\n            sumZone8 += partIntDuration;\n        }\n    }\n    return sumZone8;\n}\n\nasync function zone9_12(production_data) {\n    let sumZone9 = 0;\n    const initIndex = await createIndexArray(309, 312, 0);\n    for (const zone of production_data) {\n        if (zone.zone_number >= 2 && zone.zone_number <= 7) {\n            for (const indexItem of initIndex) {\n                if (zone.zone_number === indexItem.index + 8) {\n                    const firstTime = moment(zone.latest_entry_times[0]);\n                    const secondTime = moment(zone.latest_entry_times[1]);\n                    const duration = await calculateTotalWorkMinutes(firstTime, secondTime);\n                    indexItem.value = Math.round(duration);\n                }\n            }\n        }\n    }\n    for (const index of initIndex) {\n        var sa = index.address;    //Modbus ADRRESS do want to write\n        var value = index.value;    //Value do want to command\n        buf.writeUInt16BE(value);\n        var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n        msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n        node.send(msg);\n        sumZone9 += index.value;\n    }\n    return sumZone9;\n}\n\nawait sendSingleValue(sumValue / 15, 316);\n\nasync function sendSingleValue(average, address) {\n    var fc = 6;\n    var sa = address;    //Modbus ADRRESS do want to write\n    var addresses = 1;     //Number of ADRRESS do want to write\n    var value = average;    //Value do want to command\n    var buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    // node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 570,
-        "y": 580,
+        "y": 320,
         "wires": [
             [
                 "3b4a857d5bce7c64"
@@ -9358,7 +9315,7 @@
         "delayOnStart": false,
         "startDelayTime": "",
         "x": 810,
-        "y": 580,
+        "y": 320,
         "wires": [
             [],
             []
@@ -9375,8 +9332,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 570,
-        "y": 640,
+        "x": 1730,
+        "y": 360,
         "wires": [
             [
                 "de34c907ff1a6dd9"
@@ -9393,8 +9350,8 @@
         "server": "51a1a8e59174b5dc",
         "emptyMsgOnFail": false,
         "keepMsgProperties": false,
-        "x": 810,
-        "y": 640,
+        "x": 2030,
+        "y": 360,
         "wires": [
             [],
             []
@@ -9411,8 +9368,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 590,
-        "y": 240,
+        "x": 1750,
+        "y": 140,
         "wires": [
             [
                 "af40fcb7dbb2a854"
@@ -9431,7 +9388,7 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 260,
+        "y": 180,
         "wires": [
             [
                 "4f0d66690199088e",
@@ -9451,8 +9408,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 610,
-        "y": 460,
+        "x": 1770,
+        "y": 200,
         "wires": [
             [
                 "f01056d15e05cd10"
@@ -9472,8 +9429,8 @@
         "keepMsgProperties": false,
         "delayOnStart": false,
         "startDelayTime": "",
-        "x": 810,
-        "y": 460,
+        "x": 1970,
+        "y": 200,
         "wires": [
             [],
             []
@@ -9484,14 +9441,14 @@
         "type": "function",
         "z": "b1b087dc079885be",
         "name": "Query Data",
-        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst zoneEnum = global.get('ZoneEnum');\nconst byPassEnum = global.get(\"ByPassEnum\");\nconst moment = global.get('moment_timezone');\nconst yesterday = moment().subtract(1, \"days\").toDate();\ntry {\n    const pipeline_zone1 = [\n        {\n            $sort: { \"entry_time\": -1 }\n        },\n        {\n            $group: {\n                _id: \"$lines.line_number\",\n                latest_entry_times: { $push: \"$entry_time\" }\n            }\n        },\n        {\n            $sort: { \"_id\": 1 }\n        },\n        {\n            $project: {\n                _id: 0,\n                line_number: \"$_id\",\n                latest_entry_times: { $slice: [\"$latest_entry_times\", 2] }\n            }\n        }\n    ]\n\n    const results_zone1 = await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).aggregate(pipeline_zone1).toArray();\n\n\n    const pipeline = [\n        { $unwind: \"$zones\" },\n        { $sort: { \"zones.entry_time\": -1 } },\n        {\n            $group: {\n                _id: \"$zones.zone_number\",\n                latest_entry_times: { $push: \"$zones.entry_time\" }\n            }\n        },\n        {\n            $sort: { \"_id\": 1 }\n        },\n        {\n            $project: {\n                _id: 0,\n                zone_number: \"$_id\",\n                latest_entry_times: { $slice: [\"$latest_entry_times\", 2] }\n            }\n        }\n    ];\n    const results = await db.collection(collectionEnum.PRODUCTION_DATA).aggregate(pipeline).toArray();\n    \n    msg.zone1_production_data = results_zone1;\n    msg.production_data = results;\n    return msg\n} catch (error) {\n    node.warn(error);\n};",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst zoneEnum = global.get('ZoneEnum');\nconst byPassEnum = global.get(\"ByPassEnum\");\nconst moment = global.get('moment_timezone');\nconst yesterday = moment().subtract(1, \"days\").toDate();\ntry {\n    const pipeline_zone1 = [\n        {\n            $sort: { \"entry_time\": -1 }\n        },\n        {\n            $group: {\n                _id: \"$lines.line_number\",\n                latest_entry_times: { $push: \"$entry_time\" }\n            }\n        },\n        {\n            $sort: { \"_id\": 1 }\n        },\n        {\n            $project: {\n                _id: 0,\n                line_number: \"$_id\",\n                latest_entry_times: { $slice: [\"$latest_entry_times\", 2] }\n            }\n        }\n    ]\n\n    const results_zone1 = await db.collection(collectionEnum.ZONE1_PRODUCTION_DATA).aggregate(pipeline_zone1).toArray();\n\n\n    const pipeline = [\n        { $unwind: \"$zones\" },\n        { $sort: { \"zones.entry_time\": -1 } },\n        {\n            $group: {\n                _id: \"$zones.zone_number\",\n                latest_entry_times: { $push: \"$zones.entry_time\" }\n            }\n        },\n        {\n            \"$sort\": {\n                \"_id\": 1\n            }\n        },\n        {\n            $project: {\n                _id: 0,\n                zone_number: \"$_id\",\n                latest_entry_times: { $slice: [\"$latest_entry_times\", 2] }\n            }\n        }\n    ];\n    // node.warn(pipeline);\n    const results = await db.collection(collectionEnum.PRODUCTION_DATA).aggregate(pipeline).toArray();\n    // node.warn(JSON.stringify(results_zone1));\n    // node.warn(JSON.stringify(results));\n    msg.zone1_production_data = results_zone1;\n    msg.production_data = results;\n    return msg\n} catch (error) {\n    node.warn(error);\n};",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 410,
-        "y": 580,
+        "x": 370,
+        "y": 320,
         "wires": [
             [
                 "c43286871dab77e9"
@@ -9503,14 +9460,14 @@
         "type": "function",
         "z": "b1b087dc079885be",
         "name": "Unit/Day",
-        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\n// const zone1_production_data = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\n\n\nlet lineA = 0;\nlet lineB = 0;\nlet lineC = 0;\nfor (const item of production_data) {\n    for (const zone of item.zones) {\n        const exitTime = moment(zone.exit_time);\n        switch (zone.zone_number) {\n            case 2:\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    lineA += 1;\n                }\n                break;\n            case 3:\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    lineB += 1;\n                }\n                break;\n            case 9:\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    lineC += 1;\n                }\n                break;\n        }\n    }\n}\n// node.warn(`lineA:${lineA}`);\n// node.warn(`lineA:${lineB}`);\n// node.warn(`lineA:${lineC}`);\nawait sendSingle(lineA, 343);\nawait sendSingle(lineB, 344);\nawait sendSingle(lineC, 345);\n\n\n\n\nasync function sendSingle(item, address) {\n    var fc = 6;\n    var sa = address;    //Modbus ADRRESS do want to write\n    var addresses = 1;     //Number of ADRRESS do want to write\n    var value = item;    //Value do want to command\n    var buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    var values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
+        "func": "const fc = 6;\nconst addresses = 1;     //Number of ADRRESS do want to write\nlet buf = Buffer.alloc(4);\nconst createIndexArray = global.get('createIndexArray');\n// const zone1_production_data = msg.zone1_production_data;\nconst production_data = msg.production_data;\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\n\n\nlet lineA = 0;\nlet lineB = 0;\nlet lineC = 0;\nfor (const item of production_data) {\n    for (const zone of item.zones) {\n        const exitTime = moment(zone.exit_time);\n        switch (zone.zone_number) {\n            case 2:\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    lineA += 1;\n                }\n                break;\n            case 3:\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    lineB += 1;\n                }\n                break;\n            case 9:\n                if (exitTime.isBetween(startOfToday, endOfToday, null, \"[]\")) {\n                    lineC += 1;\n                }\n                break;\n        }\n    }\n}\n// node.warn(`lineA:${lineA}`);\n// node.warn(`lineA:${lineB}`);\n// node.warn(`lineA:${lineC}`);\nawait sendSingle(lineA, 343);\nawait sendSingle(lineB, 344);\nawait sendSingle(lineC, 345);\n\n\n\n\nasync function sendSingle(item, address) {\n    const fc = 6;\n    const sa = address;    //Modbus ADRRESS do want to write\n    const addresses = 1;     //Number of ADRRESS do want to write\n    const value = item;    //Value do want to command\n    const buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n    // node.status({ fill: \"blue\", shape: \"ring\", text: msg.topic + \":\" + value });\n    node.send(msg);\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 580,
-        "y": 300,
+        "y": 180,
         "wires": [
             [
                 "dfd277e691a99622"
@@ -9528,8 +9485,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 590,
-        "y": 380,
+        "x": 1750,
+        "y": 260,
         "wires": [
             []
         ]
@@ -9545,34 +9502,10 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 590,
-        "y": 540,
+        "x": 1750,
+        "y": 300,
         "wires": [
             []
-        ]
-    },
-    {
-        "id": "c2f1595edcbc286a",
-        "type": "inject",
-        "z": "b1b087dc079885be",
-        "name": "Interval 1 hours",
-        "props": [
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "3600",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 220,
-        "y": 820,
-        "wires": [
-            [
-                "2d75c73e436d9f23"
-            ]
         ]
     },
     {
@@ -9582,7 +9515,7 @@
         "name": "MJ Unit Accumulate",
         "info": "",
         "x": 230,
-        "y": 780,
+        "y": 400,
         "wires": []
     },
     {
@@ -9597,7 +9530,7 @@
         "finalize": "",
         "libs": [],
         "x": 410,
-        "y": 820,
+        "y": 440,
         "wires": [
             [
                 "13c8a533151fa403",
@@ -9617,7 +9550,7 @@
         "finalize": "",
         "libs": [],
         "x": 620,
-        "y": 820,
+        "y": 440,
         "wires": [
             [
                 "fcdc520c470aed89"
@@ -9638,7 +9571,7 @@
         "delayOnStart": false,
         "startDelayTime": "",
         "x": 850,
-        "y": 820,
+        "y": 440,
         "wires": [
             [],
             []
@@ -9755,37 +9688,13 @@
         ]
     },
     {
-        "id": "277f18aee2cf8fd7",
-        "type": "inject",
-        "z": "b1b087dc079885be",
-        "name": "",
-        "props": [
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 190,
-        "y": 580,
-        "wires": [
-            [
-                "f2a3839a2beb50f5"
-            ]
-        ]
-    },
-    {
         "id": "c9f3689e64485cfe",
         "type": "comment",
         "z": "b1b087dc079885be",
         "name": "Avg. Productive (min/u)",
         "info": "",
         "x": 620,
-        "y": 880,
+        "y": 500,
         "wires": []
     },
     {
@@ -9800,7 +9709,7 @@
         "finalize": "",
         "libs": [],
         "x": 600,
-        "y": 920,
+        "y": 540,
         "wires": [
             [
                 "fcdc520c470aed89"
@@ -9814,7 +9723,7 @@
         "name": "Working Time ",
         "info": "",
         "x": 210,
-        "y": 980,
+        "y": 580,
         "wires": []
     },
     {
@@ -9824,7 +9733,7 @@
         "name": "Speed Set",
         "info": "",
         "x": 200,
-        "y": 1140,
+        "y": 740,
         "wires": []
     },
     {
@@ -9834,7 +9743,7 @@
         "name": "MJ Production",
         "info": "",
         "x": 600,
-        "y": 780,
+        "y": 400,
         "wires": []
     },
     {
@@ -9849,34 +9758,10 @@
         "finalize": "",
         "libs": [],
         "x": 410,
-        "y": 1020,
+        "y": 620,
         "wires": [
             [
                 "acb1583bf8c75892"
-            ]
-        ]
-    },
-    {
-        "id": "f7d95d8675837f12",
-        "type": "inject",
-        "z": "b1b087dc079885be",
-        "name": "Interval 1 hours",
-        "props": [
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "3600",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 220,
-        "y": 1020,
-        "wires": [
-            [
-                "9f622e1b7e1e9185"
             ]
         ]
     },
@@ -9892,7 +9777,7 @@
         "finalize": "",
         "libs": [],
         "x": 600,
-        "y": 1020,
+        "y": 620,
         "wires": [
             [
                 "9142f20c80627493"
@@ -10020,7 +9905,7 @@
         "delayOnStart": false,
         "startDelayTime": "",
         "x": 850,
-        "y": 1020,
+        "y": 620,
         "wires": [
             [],
             []
@@ -10042,8 +9927,8 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 230,
-        "y": 1180,
+        "x": 150,
+        "y": 780,
         "wires": [
             [
                 "f903be7ba5cca940"
@@ -10061,8 +9946,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 350,
-        "y": 300,
+        "x": 1570,
+        "y": 140,
         "wires": [
             []
         ]
@@ -10078,8 +9963,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 820,
-        "y": 300,
+        "x": 2220,
+        "y": 140,
         "wires": [
             []
         ]
@@ -10096,7 +9981,7 @@
         "finalize": "",
         "libs": [],
         "x": 430,
-        "y": 1180,
+        "y": 780,
         "wires": [
             [
                 "b09c4886c451c2f2"
@@ -10227,10 +10112,82 @@
         "delayOnStart": false,
         "startDelayTime": "",
         "x": 630,
-        "y": 1180,
+        "y": 780,
         "wires": [
             [],
             []
+        ]
+    },
+    {
+        "id": "b9f996ed965f58a6",
+        "type": "inject",
+        "z": "b1b087dc079885be",
+        "name": "Interval 1 minutes",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 620,
+        "wires": [
+            [
+                "9f622e1b7e1e9185"
+            ]
+        ]
+    },
+    {
+        "id": "a1fe0ce2ccbdb01e",
+        "type": "inject",
+        "z": "b1b087dc079885be",
+        "name": "Interval 1 minutes",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 440,
+        "wires": [
+            [
+                "2d75c73e436d9f23"
+            ]
+        ]
+    },
+    {
+        "id": "eb913f215889c4f1",
+        "type": "inject",
+        "z": "b1b087dc079885be",
+        "name": "Interval 1 minutes",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 320,
+        "wires": [
+            [
+                "f2a3839a2beb50f5"
+            ]
         ]
     },
     {
