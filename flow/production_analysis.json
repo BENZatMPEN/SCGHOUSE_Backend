@@ -3608,7 +3608,7 @@
         "type": "function",
         "z": "3f82c49c8d750693",
         "name": "log response",
-        "func": "node.log(`Request body:${JSON.stringify(msg.payload)}`)\n\nreturn msg;",
+        "func": "node.log(`_msgid:${msg._msgid}|Request body:${JSON.stringify(msg.req.body)}`)\nnode.log(`_msgid:${msg._msgid}|Respose body:${JSON.stringify(msg.payload)}`)\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
