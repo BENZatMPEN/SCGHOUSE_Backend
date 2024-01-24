@@ -2404,7 +2404,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1110,
+        "x": 1090,
         "y": 100,
         "wires": [
             []
@@ -2464,7 +2464,7 @@
         "type": "function",
         "z": "3b1fe48eb8c3d4ed",
         "name": "Calculate speed ",
-        "func": "const zoneMoveTime = global.get('ZoneMoveTime');\nconst buf = Buffer.from(msg.payload.buffer);\nconst bufValue600 = buf.readFloatBE();\nconst bufValue602 = buf.readFloatBE(4);\nconst bufValue604 = buf.readFloatBE(8);\n\nconst speedA = parseFloat(bufValue600.toFixed(4));\nconst speedB = parseFloat(bufValue602.toFixed(4));\nconst speedC = parseFloat(bufValue604.toFixed(4));\n\n// const speedB = 2260;\n// const speedC = 2260;\n\n\n// node.warn(`speedA:${speedA}`);\n// node.warn(`speedB:${speedB}`);\n// node.warn(`speedC:${speedC}`);\n\nconst speedBMinute = speedB ? speedB / 60 : 9999;\nconst speedCMinute = speedB ? speedB / 60 : 9999;\n// node.warn(`speedBMinute:${parseFloat(speedBMinute.toFixed(2))}`);\n// node.warn(`speedCMinute:${parseFloat(speedCMinute.toFixed(2))}`);\nsetSpeedBLine(parseFloat(speedBMinute.toFixed(2)));\nsetSpeedCLine(parseFloat(speedCMinute.toFixed(2)));\n\n\n\n\nfunction setSpeedBLine(speed) {\n    zoneMoveTime['zone3MoveTime'] = speed;\n    zoneMoveTime['zone5MoveTime'] = speed;\n    zoneMoveTime['zone6MoveTime'] = speed;\n    zoneMoveTime['zone7MoveTime'] = speed;\n}\n\n\nfunction setSpeedCLine(speed) {\n    zoneMoveTime['zone9MoveTime'] = speed;\n    zoneMoveTime['zone10MoveTime'] = speed;\n    zoneMoveTime['zone11MoveTime'] = speed;\n    zoneMoveTime['zone12MoveTime'] = speed;\n}",
+        "func": "const zoneMoveTime = global.get('ZoneMoveTime');\nconst buf = Buffer.from(msg.payload.buffer);\nconst bufValue601 = buf.readFloatBE();\nconst bufValue603 = buf.readFloatBE(4);\nconst bufValue605 = buf.readFloatBE(8);\n\nconst speedA = parseFloat(bufValue601.toFixed(4));\nconst speedB = parseFloat(bufValue603.toFixed(4));\nconst speedC = parseFloat(bufValue605.toFixed(4));\n\n// const speedB = 2260;\n// const speedC = 2260;\n\n\n// node.warn(`speedA:${speedA}`);\n// node.warn(`speedB:${speedB}`);\n// node.warn(`speedC:${speedC}`);\n\nconst speedBMinute = speedB ? speedB / 60 : 9999;\nconst speedCMinute = speedC ? speedC / 60 : 9999;\n// node.warn(`speedBMinute:${parseFloat(speedBMinute.toFixed(2))}`);\n// node.warn(`speedCMinute:${parseFloat(speedCMinute.toFixed(2))}`);\nsetSpeedBLine(parseFloat(speedBMinute.toFixed(2)));\nsetSpeedCLine(parseFloat(speedCMinute.toFixed(2)));\n\n\n\n\nfunction setSpeedBLine(speed) {\n    zoneMoveTime['zone3MoveTime'] = speed;\n    zoneMoveTime['zone5MoveTime'] = speed;\n    zoneMoveTime['zone6MoveTime'] = speed;\n    zoneMoveTime['zone7MoveTime'] = speed;\n}\n\n\nfunction setSpeedCLine(speed) {\n    zoneMoveTime['zone9MoveTime'] = speed;\n    zoneMoveTime['zone10MoveTime'] = speed;\n    zoneMoveTime['zone11MoveTime'] = speed;\n    zoneMoveTime['zone12MoveTime'] = speed;\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2483,7 +2483,7 @@
         "type": "function",
         "z": "3b1fe48eb8c3d4ed",
         "name": "Address 600 - 604",
-        "func": "// const fc = 3;\n// const sa = 600;          //start address base0\n// const addresses = 8;   //Number of word address\n\n// msg.payload = { value: msg.payload, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n// return msg;\n\n\nconst fc = 3;\nconst sa = 600;          //start address base0\nconst addresses = 8;   //Number of word address\n\nmsg.payload = { value: msg.payload, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\nreturn msg;",
+        "func": "// const fc = 3;\n// const sa = 600;          //start address base0\n// const addresses = 8;   //Number of word address\n\n// msg.payload = { value: msg.payload, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\n// return msg;\n\n\nconst fc = 3;\nconst sa = 601;          //start address base0\nconst addresses = 8;   //Number of word address\n\nmsg.payload = { value: msg.payload, 'fc': fc, 'unitid': 1, 'address': sa, 'quantity': addresses };\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2742,8 +2742,8 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 810,
-        "y": 260,
+        "x": 890,
+        "y": 160,
         "wires": [
             [
                 "f81f1d4d96e155c5"
@@ -2761,8 +2761,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1010,
-        "y": 260,
+        "x": 1090,
+        "y": 160,
         "wires": [
             []
         ]
@@ -3958,7 +3958,7 @@
         "type": "function",
         "z": "c50d486d4200cd31",
         "name": "Bathtoom station",
-        "func": "const dotenv = global.get(\"env\").config().parsed;\nconst moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\n\nconst results = await db.collection(collectionEnum.PRODUCTION_DATA)\n    .find({ \"is_active\": true, \"current_zone\": 8, \"unit_type\": \"B,C\" })\n    .toArray();\n\n// node.warn(results);\nconst resultsLength = results.length;\nfor (let index = 0; index < 26; index++) {\n    const dateNow = moment();\n    const productionData = results[index];\n    const dataQR = productionData?.qr_data_detail?.data\n    const zone8Detail = productionData?.zones.filter((item) => item.zone_number === 8)\n    const instDate = moment(dataQR?.installation_date, \"DDMMYYYY\");\n    instDate.subtract(2, 'days');\n    const entry_time = zone8Detail ? moment(zone8Detail[0]?.entry_time) : null;\n    // node.warn(`deviceID:${529 + index}`);\n    const payload = {\n        \"siteID\": dotenv.SIDE_ID,\n        \"deviceID\": 529 + index,\n        \"date\": \"\",\n        \"offset\": -420,\n        \"connection\": \"REST\",\n        \"tagObj\": [\n            {\n                \"status\": true,\n                \"label\": `House_Name_B${index + 1}`,\n                \"value\": 1,\n                \"text\": dataQR?.owner_name ? dataQR?.owner_name : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Unit_No_B${index + 1}`,\n                \"value\": dataQR?.units_number ? Number(dataQR?.units_number) : 0,\n                \"text\": \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Type_Unit${index + 1}`,\n                \"value\": 1,\n                \"text\": dataQR?.unit_type ? dataQR?.unit_type : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `BR_m2${index + 1}`,\n                \"value\": dataQR?.remark_b ? Number(dataQR?.remark_b) : 0,\n                \"text\": \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Day_IN_B${index + 1}`,\n                \"value\": 1,\n                \"text\": entry_time ? entry_time.format('DD-MMM-YY') : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Time_IN_B${index + 1}`,\n                \"value\": 1,\n                \"text\": entry_time ? entry_time.format('HH:mm') : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Load_Date_B${index + 1}`,\n                \"value\": 1,\n                \"text\": instDate ? instDate.format('ddd, DD-MM-YY') : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Remain_B${index + 1}`,\n                \"value\": instDate ? dateNow.diff(instDate, 'days') : 0,\n                \"text\": \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Count_min_B${index + 1}`,\n                \"value\": entry_time ? dateNow.diff(entry_time, 'minutes') : 0,\n                \"text\": \"\"\n            },\n        ]\n    }\n    msg.method = \"POST\";\n    msg.url = dotenv.ENDPOINT_URL;\n    msg.payload = payload;\n    node.send(msg);\n}\n\n",
+        "func": "const dotenv = global.get(\"env\").config().parsed;\nconst moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\n\nconst results = await db.collection(collectionEnum.PRODUCTION_DATA)\n    .find({ \"is_active\": true, \"current_zone\": 8, \"unit_type\": \"B,C\" })\n    .toArray();\n\n// node.warn(results);\nconst resultsLength = results.length;\nfor (let index = 0; index < 26; index++) {\n    const dateNow = moment();\n    const productionData = results[index];\n    const dataQR = productionData?.qr_data_detail?.data\n    const zone8Detail = productionData?.zones.filter((item) => item.zone_number === 8)\n    const instDate = moment(dataQR?.installation_date, \"DDMMYYYY\");\n    if (dataQR?.installation_date) {\n        instDate.subtract(2, 'days');\n    } else {\n        \n    }\n    const entry_time = zone8Detail ? moment(zone8Detail[0]?.entry_time) : null;\n    // node.warn(`deviceID:${529 + index}`);\n    const payload = {\n        \"siteID\": dotenv.SIDE_ID,\n        \"deviceID\": 529 + index,\n        \"date\": \"\",\n        \"offset\": -420,\n        \"connection\": \"REST\",\n        \"tagObj\": [\n            {\n                \"status\": true,\n                \"label\": `House_Name_B${index + 1}`,\n                \"value\": 1,\n                \"text\": dataQR?.owner_name ? dataQR?.owner_name : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Unit_No_B${index + 1}`,\n                \"value\": dataQR?.units_number ? Number(dataQR?.units_number) : 0,\n                \"text\": \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Type_Unit${index + 1}`,\n                \"value\": 1,\n                \"text\": dataQR?.unit_type ? dataQR?.unit_type : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `BR_m2${index + 1}`,\n                \"value\": dataQR?.remark_b ? Number(dataQR?.remark_b) : 0,\n                \"text\": \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Day_IN_B${index + 1}`,\n                \"value\": 1,\n                \"text\": entry_time ? entry_time.format('DD-MMM-YY') : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Time_IN_B${index + 1}`,\n                \"value\": 1,\n                \"text\": entry_time ? entry_time.format('HH:mm') : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Load_Date_B${index + 1}`,\n                \"value\": 1,\n                \"text\": dataQR?.installation_date ? instDate.format('ddd, DD-MM-YY') : \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Remain_B${index + 1}`,\n                \"value\": dataQR?.installation_date ? dateNow.diff(instDate, 'days') : 0,\n                \"text\": \"\"\n            },\n            {\n                \"status\": true,\n                \"label\": `Count_min_B${index + 1}`,\n                \"value\": entry_time ? dateNow.diff(entry_time, 'minutes') : 0,\n                \"text\": \"\"\n            },\n        ]\n    }\n    msg.method = \"POST\";\n    msg.url = dotenv.ENDPOINT_URL;\n    msg.payload = payload;\n    node.send(msg);\n}\n\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -9200,7 +9200,7 @@
         "z": "b1b087dc079885be",
         "name": "Production speed in Assyline",
         "info": "",
-        "x": 220,
+        "x": 240,
         "y": 40,
         "wires": []
     },
@@ -10106,7 +10106,7 @@
         "id": "f903be7ba5cca940",
         "type": "function",
         "z": "b1b087dc079885be",
-        "name": "Query Data",
+        "name": "Speed send",
         "func": "const db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst zoneEnum = global.get('ZoneEnum');\nconst byPassEnum = global.get(\"ByPassEnum\");\nconst moment = global.get('moment_timezone');\nconst speed = global.get('ZoneMoveTime');\n\n\nconst speedA = speed['zone2MoveTime'] !== 9999 ? speed['zone2MoveTime'] : 0;\nconst speedB = speed['zone3MoveTime'] !== 9999 ? speed['zone3MoveTime'] : 0;\nconst speedC = speed['zone9MoveTime'] !== 9999 ? speed['zone9MoveTime'] : 0;\n\n// node.warn(`speedA:${speedA}`);\n// node.warn(`speedB:${speedB}`);\n// node.warn(`speedC:${speedC}`);\n\n//Block/Minute\nsendSingleValue(speedA, 326);\nsendSingleValue(speedB, 328);\nsendSingleValue(speedC, 330);\n\n// sendSingleValue(speedA, 332);\n// sendSingleValue(speedB, 334);\n// sendSingleValue(speedC, 336);\n\n//Meter/Minute\n// sendSingleValue(speedA / 6.5, 332);\n// sendSingleValue(speedB / 6.5, 334);\n// sendSingleValue(speedC / 6.5, 336);\n\n\nfunction sendSingleValue(value, address) {\n    const fc = 16;\n    const addresses = 2;     //Number of ADRRESS do want to write\n    const buf = Buffer.alloc(4);\n    buf.writeFloatBE(value);\n    const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': address, 'quantity': addresses };\n    node.send(msg);\n}\n",
         "outputs": 1,
         "noerr": 0,
@@ -10387,6 +10387,79 @@
                 "4f0d66690199088e"
             ]
         ]
+    },
+    {
+        "id": "ef748e9156efb28b",
+        "type": "inject",
+        "z": "b1b087dc079885be",
+        "name": "Interval 12 hours",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "43200",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "10",
+        "topic": "",
+        "x": 150,
+        "y": 900,
+        "wires": [
+            [
+                "8a065af03b50aacd"
+            ]
+        ]
+    },
+    {
+        "id": "8a065af03b50aacd",
+        "type": "function",
+        "z": "b1b087dc079885be",
+        "name": "Working day",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst zoneEnum = global.get('ZoneEnum');\nconst byPassEnum = global.get(\"ByPassEnum\");\nconst moment = global.get('moment_timezone');\nconst speed = global.get('ZoneMoveTime');\n\n\n\nconst currentYear = new Date().getFullYear();\nconst result = await db.collection(collectionEnum.HISTORY_WORK_SCHEDULE).find({\n    is_active: true,\n    created_at: {\n        $gte: new Date(`${currentYear}-01-01T00:00:00Z`),\n        $lt: new Date(`${currentYear + 1}-01-01T00:00:00Z`)\n    }\n}).sort({ _id: -1 }).limit(100).count();\n\n// node.warn(result)\nsendSingleValue(result, 348);\n\nfunction sendSingleValue(value, address) {\n    const fc = 6;\n    const addresses = 1;     //Number of ADRRESS do want to write\n    const buf = Buffer.alloc(4);\n    buf.writeFloatBE(value);\n    const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]]\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': address, 'quantity': addresses };\n    node.send(msg);\n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 900,
+        "wires": [
+            [
+                "99efd0f1834ee73e"
+            ]
+        ]
+    },
+    {
+        "id": "99efd0f1834ee73e",
+        "type": "modbus-flex-write",
+        "z": "b1b087dc079885be",
+        "name": "",
+        "showStatusActivities": false,
+        "showErrors": false,
+        "showWarnings": true,
+        "server": "51a1a8e59174b5dc",
+        "emptyMsgOnFail": false,
+        "keepMsgProperties": false,
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "x": 630,
+        "y": 900,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "a346aaa85cfd1091",
+        "type": "comment",
+        "z": "b1b087dc079885be",
+        "name": "Working day",
+        "info": "",
+        "x": 210,
+        "y": 860,
+        "wires": []
     },
     {
         "id": "459b74ed9c9e0478",
