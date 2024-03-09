@@ -3634,6 +3634,63 @@
         ]
     },
     {
+        "id": "d584af857d92c886",
+        "type": "comment",
+        "z": "3f82c49c8d750693",
+        "name": "Cross Zone",
+        "info": "",
+        "x": 150,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "d7ca33b5dabd838f",
+        "type": "http in",
+        "z": "3f82c49c8d750693",
+        "name": "Get Cross Zone",
+        "url": "/api/cross-zone",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 1000,
+        "wires": [
+            [
+                "0c7810e4a06ec99a"
+            ]
+        ]
+    },
+    {
+        "id": "90e6d5f00f32fc26",
+        "type": "http response",
+        "z": "3f82c49c8d750693",
+        "name": "Response",
+        "statusCode": "",
+        "headers": {},
+        "x": 560,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "0c7810e4a06ec99a",
+        "type": "function",
+        "z": "3f82c49c8d750693",
+        "name": "Cross Zone",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst jwt = global.get(\"jwt\");\nconst dotenv = global.get(\"env\").config().parsed;\nconst bcrypt = global.get(\"bcrypt\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst collectionQR = db.collection(collectionEnum.QR_DATA);\nconst qrLocationEnum = global.get('QrLocationEnum');\n\n\nconst token = msg.req.headers.authorization;\nlet startDate = msg.req.query.startDate;\nlet endDate = msg.req.query.endDate;\nstartDate = moment(startDate, 'YYYY/MM/DDTHH:mm:ss')\nendDate = moment(endDate, 'YYYY/MM/DDTHH:mm:ss')\ntry {\n    if (await validateJWT(token.replace(\"Bearer\", \"\").trim())) {\n        const result = await db.collection(collectionEnum.LOG_CROSS_ZONE)\n            .find({\n                created_date: {\n                    $gte: startDate.toDate(),\n                    $lte: endDate.toDate(),\n                },\n            }).toArray();\n        // node.warn(result);\n        const transfromResult = result.map((item) => {\n            const qr_code = item.qr_code.split(';');\n            return {\n                created_date: moment(item.created_date).format('YYYY/MM/DDTHH:mm:ss'),\n                house_code: qr_code[0],\n                house_name: qr_code[1],\n                unit_number: qr_code[3],\n                from_zone: `zone ${item.from_zone}`,\n                to_zone: `zone ${item.to_zone}`,\n            };\n        });\n        // node.warn(result);\n        msg.payload = transfromResult;\n        return msg\n    } else {\n        msg.statusCode = 401;\n        msg.payload = {\n            \"code\": \"ERR_0004\",\n            \"message\": \"Accesss token หมดอายุหรือไม่ถูกต้อง\",\n            \"data\": null\n        };\n        node.warn(msg);\n        return msg;\n    }\n\n} catch (error) {\n    node.warn(error);\n    msg.statusCode = 401;\n    msg.payload = {\n        \"code\": \"ERR_0004\",\n        \"message\": \"Accesss token หมดอายุหรือไม่ถูกต้อง\",\n        \"data\": null\n    };\n    node.warn(msg);\n    return msg;\n};\n\nfunction removeBearerPrefix(jwt) {\n    if (jwt.startsWith('Bearer ')) {\n        return jwt.substring(7);\n    }\n    return jwt;\n}\n\n\n// Function to validate JWT\nasync function validateJWT(token) {\n    try {\n        // node.warn(token);\n        // node.warn(token);\n        // Verify the token using the secret key\n        const payload = await jwt.verify(token, dotenv.SECRETKEY);\n        // node.warn(payload)\n        // Check if the token has expired\n        const now = Date.now() / 1000; // Convert current time to seconds\n        if (payload.exp < now) {\n            return false;\n        }\n        // If the token is valid and has not expired, return the payload\n        return true;\n    } catch (error) {\n        console.error(\"error: \", error);\n        node.warn(\"error: \" + error);\n        // If there's an error verifying the token, return an error message\n        return false;\n    }\n}\n\nasync function saveLog(msg, reponseMsg, resposeCode) {\n    const payload = msg.payload;\n    const token = msg.req.headers.authorization;\n    const house_code = payload.house_code;\n    const installation_date = payload.installation_date;\n    const user = await getUser(token);\n    const newLog = {\n        created_date: new Date(),\n        created_by: user,\n        request: payload,\n        massgae: `Function Update Installation date, House code :${house_code}, New date ${installation_date}`,\n        response_msg: reponseMsg,\n        response_code: resposeCode\n    }\n    await db.collection(collectionEnum.LOG_INSTALLATION_DATE).insertOne(newLog);\n\n}\n\nasync function getUser(token) {\n    try {\n        const result = await db.collection(collectionEnum.JWT_TOKEN).aggregate([\n            {\n                $match: {\n                    \"token\": token\n                }\n            },\n            {\n                $lookup: {\n                    from: \"users\",\n                    localField: \"user_id\",\n                    foreignField: \"_id\",\n                    as: \"user_info\"\n                }\n            },\n            {\n                $unwind: \"$user_info\"\n            },\n            {\n                $project: {\n                    \"username\": \"$user_info.username\"\n                }\n            }\n        ]).toArray();\n        return result[0];\n    } catch (e) {\n        node.warn(e);\n        return 'System'\n    }\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1000,
+        "wires": [
+            [
+                "90e6d5f00f32fc26"
+            ]
+        ]
+    },
+    {
         "id": "97ba56669b53eed7",
         "type": "inject",
         "z": "c50d486d4200cd31",
