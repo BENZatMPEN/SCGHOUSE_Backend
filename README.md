@@ -1,69 +1,35 @@
-# Node-RED
+# การติดตั้ง
+```
+node version v16.19.0
+```
+## Clone project หรือ copy files
+```
+# clone project
+git clone https://gitlab.com/chansetthi/production-analysis-service.git
+```
 
-http://nodered.org
+## 1. ตั้งค่า environment variables ใน docker-compose.yaml
+#### environment
 
-[![Build Status](https://github.com/node-red/node-red/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/node-red/node-red/actions?query=branch%3Amaster)
+| Variable            | Value    | Description     |
+| ------------------- | -------- | --------------- |
+| MONGODB_URI      | mongodb://localhost:27217 | mongo uri          |
+| DB_NAME | dev_production_analysis | ชื่อ Database |
+| SECRETKEY | e2aef94ac35e811f74d63c179de4e98e7bc56f3834e68b6707e5e2ed1a690b8a |
+| REFRESH_SECRET_KEY | c2fd3d9ab07a1a80a7e78f33d7e2558a16963c94a8f38830947d03713a1d90ce |
+| EXPIRES_IN | 86300 | เวลาหมดอายุของ Token|
+| REFRESH_TOKEN_EXPIRES_IN | 86300 | เวลาหมดอายุของ Refresh Token|
+| ENDPOINT_URL | http://localhost:2100/ | URL API ของ service report|
+## 2. รัน install package
+```
+npm install
+```
+## 3. start service
+```
+sh start.sh
+```
+## 4. เปิดเว็บ admin
 
-Low-code programming for event-driven applications.
-
-![Node-RED: Low-code programming for event-driven applications](http://nodered.org/images/node-red-screenshot.png)
-
-## Quick Start
-
-Check out http://nodered.org/docs/getting-started/ for full instructions on getting
-started.
-
-1. `sudo npm install -g --unsafe-perm node-red`
-2. `node-red`
-3. Open <http://localhost:1880>
-
-## Getting Help
-
-More documentation can be found [here](http://nodered.org/docs).
-
-For further help, or general discussion, please use the [Node-RED Forum](https://discourse.nodered.org) or [slack team](https://nodered.org/slack).
-
-## Developers
-
-If you want to run the latest code from git, here's how to get started:
-
-1. Clone the code:
-
-        git clone https://github.com/node-red/node-red.git
-        cd node-red
-
-2. Install the node-red dependencies
-
-        npm install
-
-3. Build the code
-
-        npm run build
-
-4. Run
-
-        npm start
-
-## Contributing
-
-Before raising a pull-request, please read our
-[contributing guide](https://github.com/node-red/node-red/blob/master/CONTRIBUTING.md).
-
-This project adheres to the [Contributor Covenant 1.4](http://contributor-covenant.org/version/1/4/).
- By participating, you are expected to uphold this code. Please report unacceptable
- behavior to any of the project's core team at team@nodered.org.
-
-## Authors
-
-Node-RED is a project of the [OpenJS Foundation](http://openjsf.org).
-
-It is maintained by:
-
- * Nick O'Leary [@knolleary](http://twitter.com/knolleary)
- * Dave Conway-Jones [@ceejay](http://twitter.com/ceejay)
- * And many others...
-
-
-## Copyright and license
-
-Copyright OpenJS Foundation and other contributors, https://openjsf.org under [the Apache 2.0 license](LICENSE).
+```
+http://localhost:2300
+```
