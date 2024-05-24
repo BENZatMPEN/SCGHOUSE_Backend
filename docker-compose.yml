@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   mongodb:
     image: mongo:latest
@@ -8,20 +7,20 @@ services:
       - "27117:27017"
     volumes:
       - ./data/mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: ajbear1969
   api:
-    image: production-anslysis-services
+    image: production-anslysis-service
+    volumes:
+      - ./flow:/app/flow
     ports:
       - "2300:2300"
   client:
     image: production-anslysis-dashboard
     ports:
       - "8000:3000"
-    volumes:
-      - .:/usr/src/app
     environment:
-      REACT_APP_BACKEND_API_ENDPOINT: http://127.0.0.1:2333
+      REACT_APP_BACKEND_API_ENDPOINT: http://127.0.0.1:2300
     command: npm start
-  
