@@ -2675,6 +2675,7 @@
         "id": "4515ab2e9ba1ad23",
         "type": "modbus-flex-server",
         "z": "3b1fe48eb8c3d4ed",
+        "d": true,
         "name": "",
         "logEnabled": false,
         "serverAddress": "192.168.150.45",
@@ -2809,6 +2810,31 @@
         "x": 720,
         "y": 200,
         "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7fe7151e4afdcf53",
+        "type": "modbus-server",
+        "z": "3b1fe48eb8c3d4ed",
+        "name": "",
+        "logEnabled": false,
+        "hostname": "192.168.150.45",
+        "serverPort": "11502",
+        "responseDelay": 100,
+        "delayUnit": "ms",
+        "coilsBufferSize": 10000,
+        "holdingBufferSize": 10000,
+        "inputBufferSize": 10000,
+        "discreteBufferSize": 10000,
+        "showErrors": false,
+        "x": 840,
+        "y": 500,
+        "wires": [
+            [],
+            [],
+            [],
+            [],
             []
         ]
     },
