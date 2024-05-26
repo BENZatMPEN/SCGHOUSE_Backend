@@ -20,7 +20,7 @@ services:
       - "2300:2300"
     environment:
       MONGO_URI: mongodb://admin:ajbear1969@mongodb:27017
-      ENDPOINT_URL: http://host.docker.internal:3303/api/interfaces/update
+      ENDPOINT_URL: http://localhost:3303/api/interfaces/update
     depends_on:
       - mongodb
 
