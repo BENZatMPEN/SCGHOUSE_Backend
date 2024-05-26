@@ -20,16 +20,17 @@ services:
       - "2300:2300"
     environment:
       MONGO_URI: mongodb://admin:ajbear1969@mongodb:27017
-      ENDPOINT_URL: http://localhost:3303/api/interfaces/update
+      ENDPOINT_URL: http://host.docker.internal:3303/api/interfaces/update
     depends_on:
       - mongodb
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   client:
     image: production-anslysis-dashboard
     ports:
       - "8000:3000"
     environment:
-      REACT_APP_BACKEND_API_ENDPOINT: http://api:2300
+      REACT_APP_BACKEND_API_ENDPOINT: http://localhost:2300
     command: npm start
     depends_on:
       - api
