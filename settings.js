@@ -464,6 +464,8 @@ module.exports = {
      */
     functionGlobalContext: {
         // os:require('os'),
+        mongoUri: process.env.MONGO_URI,
+        endPointUrl: process.env.ENDPOINT_URL,
         mongodb: require('mongodb'),
         jwt: require('jsonwebtoken'),
         env: require('dotenv'),

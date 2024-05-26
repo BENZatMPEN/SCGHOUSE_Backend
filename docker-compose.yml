@@ -11,16 +11,29 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: ajbear1969
+
   api:
     image: production-anslysis-service
     volumes:
       - ./flow:/app/flow
     ports:
       - "2300:2300"
+    environment:
+      MONGO_URI: mongodb://admin:ajbear1969@mongodb:27017
+      ENDPOINT_URL: http://host.docker.internal:3303/api/interfaces/update
+    depends_on:
+      - mongodb
+
   client:
     image: production-anslysis-dashboard
     ports:
       - "8000:3000"
     environment:
-      REACT_APP_BACKEND_API_ENDPOINT: http://127.0.0.1:2300
+      REACT_APP_BACKEND_API_ENDPOINT: http://api:2300
     command: npm start
+    depends_on:
+      - api
+
+networks:
+  default:
+    driver: bridge
