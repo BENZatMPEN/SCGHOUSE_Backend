@@ -13,7 +13,7 @@ npm i pm2-logrotate
 git clone https://gitlab.com/chansetthi/production-analysis-service.git
 ```
 
-## 1. ตั้งค่า environment variables ใน docker-compose.yaml
+## 1. ตั้งค่า environment variables .env
 #### environment
 
 | Variable            | Value    | Description     |
