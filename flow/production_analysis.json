@@ -500,9 +500,7 @@
             "c834aa8dd89f7db9"
         ],
         "x": 174,
-        "y": 1059,
-        "w": 692,
-        "h": 82
+        "y": 1059
     },
     {
         "id": "e8d53e32ddbbd816",
@@ -1149,7 +1147,7 @@
         "type": "function",
         "z": "fcaf559c6a8d9f1a",
         "name": "Add new object zone 4-5",
-        "func": "const logger = global.get('loggerInfo');\nconst db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst lineEnum = global.get(\"LineEnum\");\nconst preAddObjectCheck = global.get(\"preAddObjectCheck\")\nconst byPassEnum = global.get(\"ByPassEnum\");\nconst saveQrCode = global.get('saveQrCode');\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\n//cross zone \nconst endCrossZone = global.get('endCrossZone');\nconst updatePartProductionZone = global.get('updatePartProductionZone');\nconst addCrossZone = global.get('addCrossZone');\nconst findBlockEmpty = global.get('findBlockEmpty');\nconst newObjectInZone = global.get('newObjectInZone');\nconst saveLogCrossZone = global.get('saveLogCrossZone');\n//QR Data\nconst qrData = msg.qrData;\n\nlogger(qrData.qr_code, `Start Add new object zone 4-5`)\nawait updateZoneObject(zoneEnum.ZONE_3.index)\nlogger(qrData.qr_code, `End Add new object zone 4-5`)\nreturn msg;\n\n\nasync function updateZoneObject(zoneIndex) {\n    logger(qrData.qr_code, `updateZoneObject zone ${zoneIndex}`)\n    let results = [];\n    //find item in zone 3\n    const query = {\n        \"is_active\": true,\n        \"current_zone\": zoneIndex,\n        \"qr_data_detail.qr_code\": msg.qrData.qr_code\n    }\n    results = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n    // node.warn(results);\n    if (results.length === 0) {\n        //find item in by pass 1\n        const query = {\n            \"is_active\": true,\n            \"current_zone\": zoneEnum.ZONE_4.index,\n            \"qr_data_detail.qr_code\": msg.qrData.qr_code\n        }\n        results = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n        // node.warn(results);\n        if (results.length === 0) {\n            //find cross zone\n            const query = {\n                \"is_active\": true,\n                \"qr_data_detail.qr_code\": msg.qrData.qr_code\n            }\n            const result = await db.collection(collectionEnum.PRODUCTION_DATA).findOne(query);\n            node.warn(result)\n            if (!result || result?.current_zone >= zoneEnum.ZONE_5.index) {\n                node.log(\"Cannot add object zone4 because the QR code does not match the system.\");\n                node.log(`current zone : ${result?.current_zone}`);\n                msg.statusCode = 500;\n                msg.payload = {\n                    \"code\": \"ERR_9999\",\n                    \"message\": \"ระบบไม่สามารถดำเนินการได้\",\n                    \"data\": `Cannot add object zone4 because the QR code does not match the system.`\n                };\n                return msg;\n            } else {\n                const currentZone = result.current_zone;\n                //update cross zone \n                logger(qrData.qr_code, `update cross zone ${result.current_zone}`)\n                //end zone 2\n                await endCrossZone(result, zoneEnum.ZONE_2.index, \"ct_min_at_mj\")\n                //add zone 3\n                await addCrossZone(result, zoneEnum.ZONE_3.index, zoneEnum.ZONE_3.value, \"ct_min_at_buffer\")\n                //new zone 5\n                await newObjectInZone(result, zoneEnum.ZONE_5.index, zoneEnum.ZONE_5.value, qrData.data.type)\n                await saveLogCrossZone(qrData.qr_code, currentZone, zoneEnum.ZONE_5.index)\n                //save QR\n                await saveQrCode(msg.tempPayload);\n                return msg;\n            }\n        } else {\n            //Update by pass             \n            const result = results[0];\n            for (const zone of result.zones) {\n                if (zone.zone_number === zoneEnum.ZONE_4.index) {\n                    zone.exit_time = new Date();\n                    zone.blocks[0].exit_time = new Date()\n                    // node.warn(zone);\n\n                    await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                        { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                        {\n                            $set: {\n                                \"zones.$\": zone\n                            }\n                        }\n                    ).then((result) => {\n                        node.warn(\"Update zone success!\");\n                    }).catch((error) => {\n                        node.warn(error);\n                    });\n                }\n\n                const entryTime = moment(zone.entry_time);\n                const exitTime = moment(zone.exit_time);\n                // const timeDifferenceMinutes = exitTime.diff(entryTime, 'minutes');\n                const timeDifferenceMinutes = await calculateTotalWorkMinutes(entryTime, exitTime);\n                await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n                    { qr_code: result.qr_data_detail.qr_code },\n                    {\n                        $set: {\n                            \"ct_min_at_bypass1\": timeDifferenceMinutes\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(\"Update part production record success!\");\n                }).catch((error) => {\n                    node.warn(error);\n                });\n            }\n\n            //save QR\n            await saveQrCode(msg.tempPayload);\n            //next item before insert new item\n            preAddObjectCheck(zoneEnum.ZONE_5.index, 1);\n            // create object zone 5\n            await newObjectInZone5(result);\n            return msg;\n        }\n    }\n    //save QR\n    await saveQrCode(msg.tempPayload);\n\n    //next item before insert new item\n    preAddObjectCheck(zoneEnum.ZONE_5.index, 1);\n    const result = results[0];\n\n    //create zone4\n    await updateObjectZone(zoneIndex, result);\n\n    //Update exit_time zone 3\n    for (const zone of result.zones) {\n        if (zone.zone_number === zoneIndex) {\n            zone.exit_time = new Date();\n            zone.blocks[result.current_block - 1].exit_time = new Date()\n            // node.warn(zone);\n            await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                {\n                    $set: {\n                        \"zones.$\": zone\n                    }\n                }\n            ).then((result) => {\n                node.warn(\"Update zone success!\");\n            }).catch((error) => {\n                node.warn(error);\n            });\n\n            const entryTime = moment(zone.entry_time);\n            const exitTime = moment(zone.exit_time);\n            // const timeDifferenceMinutes = exitTime.diff(entryTime, 'minutes');\n            const timeDifferenceMinutes = await calculateTotalWorkMinutes(entryTime, exitTime);\n            await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n                { qr_code: result.qr_data_detail.qr_code },\n                {\n                    $set: {\n                        \"ct_min_at_buffer\": timeDifferenceMinutes\n                    }\n                }\n            ).then((result) => {\n                node.warn(\"Update part production record success!\");\n            }).catch((error) => {\n                node.warn(error);\n            });\n        }\n\n    }\n    await newObjectInZone5(result);\n}\n\nasync function newObjectInZone5(result) {\n    //Create object zone 5\n    const newZone = {\n        zone_number: zoneEnum.ZONE_5.index,\n        zone_name: zoneEnum.ZONE_5.value,\n        entry_time: new Date(),\n        exit_time: null,\n        blocks: []\n    }\n\n    const newBlock = {\n        block_number: 1,\n        entry_time: new Date(),\n        exit_time: null\n    }\n    newZone.blocks.push(newBlock);\n    result.zones.push(newZone);\n    result.current_zone = zoneEnum.ZONE_5.index;\n    result.current_block = 1;\n    // node.warn(result);\n    await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n        { _id: result._id, },\n        {\n            $set: {\n                \"zones\": result.zones,\n                \"current_zone\": zoneEnum.ZONE_5.index,\n                \"current_block\": 1\n            }\n        }\n    ).then((result) => {\n        node.warn(\"Update new zone success!\");\n    }).catch((error) => {\n        node.warn(error);\n    });\n}\n\nasync function updateObjectZone(zoneIndex, item) {\n    const query = {\n        \"is_active\": true,\n        \"current_zone\": zoneIndex,\n        \"current_block\": { $gt: item.current_block }\n    }\n    const results = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n    for (const result of results) {\n        for (const zone of result.zones) {\n            //Update exit_time zone 3\n            if (zone.zone_number === zoneIndex) {\n                zone.exit_time = new Date();\n                zone.blocks[result.current_block - 1].exit_time = new Date()\n                // node.warn(zone);\n\n                await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                    { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                    {\n                        $set: {\n                            \"zones.$\": zone\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(\"Update zone success!\");\n                }).catch((error) => {\n                    node.warn(error);\n                });\n                const entryTime = moment(zone.entry_time);\n                const exitTime = moment(zone.exit_time);\n                // const timeDifferenceMinutes = exitTime.diff(entryTime, 'minutes');\n                const timeDifferenceMinutes = await calculateTotalWorkMinutes(entryTime, exitTime);\n                await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n                    { qr_code: result.qr_data_detail.qr_code },\n                    {\n                        $set: {\n                            \"ct_min_at_buffer\": timeDifferenceMinutes\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(\"Update part production record success!\");\n                }).catch((error) => {\n                    node.warn(error);\n                });\n            }\n\n        }\n\n        //Create object zone 4\n        const blockNumber = await findBlockEmpty(zoneEnum.ZONE_4.index);\n        const newZone = {\n            zone_number: zoneEnum.ZONE_4.index,\n            zone_name: zoneEnum.ZONE_4.value,\n            entry_time: new Date(),\n            exit_time: null,\n            blocks: []\n        }\n\n        const newBlock = {\n            block_number: blockNumber,\n            entry_time: new Date(),\n            exit_time: null\n        }\n        newZone.blocks.push(newBlock);\n        result.zones.push(newZone);\n        result.current_zone = zoneEnum.ZONE_4.index;\n        result.current_block = 1;\n        // node.warn(result);\n        await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n            { _id: result._id, },\n            {\n                $set: {\n                    \"zones\": result.zones,\n                    \"current_zone\": zoneEnum.ZONE_4.index,\n                    \"current_block\": blockNumber\n                }\n            }\n        ).then((result) => {\n            node.warn(\"Update new zone success!\");\n        }).catch((error) => {\n            node.warn(error);\n        });\n    }\n}\n\nasync function crossZone(result) {\n    logger(qrData.qr_code, `update cross zone ${result.current_zone}`)\n    //end zone 2\n    await endCrossZone(result, zoneEnum.ZONE_2.index, \"ct_min_at_mj\")\n    //add zone 3\n    await addCrossZone(result, zoneEnum.ZONE_3.index, zoneEnum.ZONE_3.value, \"ct_min_at_buffer\")\n    //new zone 5\n    await preAddObjectCheck(zoneEnum.ZONE_5.index, 1);\n    await newObjectInZone(result, zoneEnum.ZONE_5.index, zoneEnum.ZONE_5.value)\n}\n",
+        "func": "const logger = global.get('loggerInfo');\nconst db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst lineEnum = global.get(\"LineEnum\");\nconst preAddObjectCheck = global.get(\"preAddObjectCheck\")\nconst byPassEnum = global.get(\"ByPassEnum\");\nconst saveQrCode = global.get('saveQrCode');\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\n//cross zone \nconst endCrossZone = global.get('endCrossZone');\nconst updatePartProductionZone = global.get('updatePartProductionZone');\nconst addCrossZone = global.get('addCrossZone');\nconst findBlockEmpty = global.get('findBlockEmpty');\nconst newObjectInZone = global.get('newObjectInZone');\nconst saveLogCrossZone = global.get('saveLogCrossZone');\n//QR Data\nconst qrData = msg.qrData;\n\nlogger(qrData.qr_code, `Start Add new object zone 4-5`)\nawait updateZoneObject(zoneEnum.ZONE_3.index)\nlogger(qrData.qr_code, `End Add new object zone 4-5`)\nreturn msg;\n\n\nasync function updateZoneObject(zoneIndex) {\n    logger(qrData.qr_code, `updateZoneObject zone ${zoneIndex}`)\n    let results = [];\n    //find item in zone 3\n    const query = {\n        \"is_active\": true,\n        \"current_zone\": zoneIndex,\n        \"qr_data_detail.qr_code\": msg.qrData.qr_code\n    }\n    results = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n    // node.warn(results);\n    if (results.length === 0) {\n        //find item in by pass 1\n        const query = {\n            \"is_active\": true,\n            \"current_zone\": zoneEnum.ZONE_4.index,\n            \"qr_data_detail.qr_code\": msg.qrData.qr_code\n        }\n        results = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n        // node.warn(results);\n        if (results.length === 0) {\n            //find cross zone\n            const query = {\n                \"is_active\": true,\n                \"qr_data_detail.qr_code\": msg.qrData.qr_code\n            }\n            node.warn(`query:${JSON.stringify(query)}}`);\n            const result = await db.collection(collectionEnum.PRODUCTION_DATA).findOne(query);\n            node.warn(result)\n            if (!result || result?.current_zone >= zoneEnum.ZONE_5.index) {\n                node.log(\"Cannot add object zone4 because the QR code does not match the system.\");\n                node.log(`current zone : ${result?.current_zone}`);\n                msg.statusCode = 500;\n                msg.payload = {\n                    \"code\": \"ERR_9999\",\n                    \"message\": \"ระบบไม่สามารถดำเนินการได้\",\n                    \"data\": `Cannot add object zone4 because the QR code does not match the system.`\n                };\n                return msg;\n            } else {\n                const currentZone = result.current_zone;\n                //update cross zone \n                logger(qrData.qr_code, `update cross zone ${result.current_zone}`)\n                //end zone 2\n                await endCrossZone(result, zoneEnum.ZONE_2.index, \"ct_min_at_mj\")\n                //add zone 3\n                await addCrossZone(result, zoneEnum.ZONE_3.index, zoneEnum.ZONE_3.value, \"ct_min_at_buffer\")\n                //new zone 5\n                await newObjectInZone(result, zoneEnum.ZONE_5.index, zoneEnum.ZONE_5.value, qrData.data.type)\n                await saveLogCrossZone(qrData.qr_code, currentZone, zoneEnum.ZONE_5.index)\n                //save QR\n                await saveQrCode(msg.tempPayload);\n                return msg;\n            }\n        } else {\n            //Update by pass             \n            const result = results[0];\n            for (const zone of result.zones) {\n                if (zone.zone_number === zoneEnum.ZONE_4.index) {\n                    zone.exit_time = new Date();\n                    zone.blocks[0].exit_time = new Date()\n                    // node.warn(zone);\n\n                    await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                        { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                        {\n                            $set: {\n                                \"zones.$\": zone\n                            }\n                        }\n                    ).then((result) => {\n                        node.warn(\"Update zone success!\");\n                    }).catch((error) => {\n                        node.warn(error);\n                    });\n                }\n\n                const entryTime = moment(zone.entry_time);\n                const exitTime = moment(zone.exit_time);\n                // const timeDifferenceMinutes = exitTime.diff(entryTime, 'minutes');\n                const timeDifferenceMinutes = await calculateTotalWorkMinutes(entryTime, exitTime);\n                await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n                    { qr_code: result.qr_data_detail.qr_code },\n                    {\n                        $set: {\n                            \"ct_min_at_bypass1\": timeDifferenceMinutes\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(\"Update part production record success!\");\n                }).catch((error) => {\n                    node.warn(error);\n                });\n            }\n\n            //save QR\n            await saveQrCode(msg.tempPayload);\n            //next item before insert new item\n            preAddObjectCheck(zoneEnum.ZONE_5.index, 1);\n            // create object zone 5\n            await newObjectInZone5(result);\n            return msg;\n        }\n    }\n    //save QR\n    await saveQrCode(msg.tempPayload);\n\n    //next item before insert new item\n    preAddObjectCheck(zoneEnum.ZONE_5.index, 1);\n    const result = results[0];\n\n    //create zone4\n    await updateObjectZone(zoneIndex, result);\n\n    //Update exit_time zone 3\n    for (const zone of result.zones) {\n        if (zone.zone_number === zoneIndex) {\n            zone.exit_time = new Date();\n            zone.blocks[result.current_block - 1].exit_time = new Date()\n            // node.warn(zone);\n            await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                {\n                    $set: {\n                        \"zones.$\": zone\n                    }\n                }\n            ).then((result) => {\n                node.warn(\"Update zone success!\");\n            }).catch((error) => {\n                node.warn(error);\n            });\n\n            const entryTime = moment(zone.entry_time);\n            const exitTime = moment(zone.exit_time);\n            // const timeDifferenceMinutes = exitTime.diff(entryTime, 'minutes');\n            const timeDifferenceMinutes = await calculateTotalWorkMinutes(entryTime, exitTime);\n            await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n                { qr_code: result.qr_data_detail.qr_code },\n                {\n                    $set: {\n                        \"ct_min_at_buffer\": timeDifferenceMinutes\n                    }\n                }\n            ).then((result) => {\n                node.warn(\"Update part production record success!\");\n            }).catch((error) => {\n                node.warn(error);\n            });\n        }\n\n    }\n    await newObjectInZone5(result);\n}\n\nasync function newObjectInZone5(result) {\n    //Create object zone 5\n    const newZone = {\n        zone_number: zoneEnum.ZONE_5.index,\n        zone_name: zoneEnum.ZONE_5.value,\n        entry_time: new Date(),\n        exit_time: null,\n        blocks: []\n    }\n\n    const newBlock = {\n        block_number: 1,\n        entry_time: new Date(),\n        exit_time: null\n    }\n    newZone.blocks.push(newBlock);\n    result.zones.push(newZone);\n    result.current_zone = zoneEnum.ZONE_5.index;\n    result.current_block = 1;\n    // node.warn(result);\n    await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n        { _id: result._id, },\n        {\n            $set: {\n                \"zones\": result.zones,\n                \"current_zone\": zoneEnum.ZONE_5.index,\n                \"current_block\": 1\n            }\n        }\n    ).then((result) => {\n        node.warn(\"Update new zone success!\");\n    }).catch((error) => {\n        node.warn(error);\n    });\n}\n\nasync function updateObjectZone(zoneIndex, item) {\n    const query = {\n        \"is_active\": true,\n        \"current_zone\": zoneIndex,\n        \"current_block\": { $gt: item.current_block }\n    }\n    const results = await db.collection(collectionEnum.PRODUCTION_DATA).find(query).toArray();\n    for (const result of results) {\n        for (const zone of result.zones) {\n            //Update exit_time zone 3\n            if (zone.zone_number === zoneIndex) {\n                zone.exit_time = new Date();\n                zone.blocks[result.current_block - 1].exit_time = new Date()\n                // node.warn(zone);\n\n                await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n                    { _id: result._id, \"zones.zone_number\": zone.zone_number },\n                    {\n                        $set: {\n                            \"zones.$\": zone\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(\"Update zone success!\");\n                }).catch((error) => {\n                    node.warn(error);\n                });\n                const entryTime = moment(zone.entry_time);\n                const exitTime = moment(zone.exit_time);\n                // const timeDifferenceMinutes = exitTime.diff(entryTime, 'minutes');\n                const timeDifferenceMinutes = await calculateTotalWorkMinutes(entryTime, exitTime);\n                await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n                    { qr_code: result.qr_data_detail.qr_code },\n                    {\n                        $set: {\n                            \"ct_min_at_buffer\": timeDifferenceMinutes\n                        }\n                    }\n                ).then((result) => {\n                    node.warn(\"Update part production record success!\");\n                }).catch((error) => {\n                    node.warn(error);\n                });\n            }\n\n        }\n\n        //Create object zone 4\n        const blockNumber = await findBlockEmpty(zoneEnum.ZONE_4.index);\n        const newZone = {\n            zone_number: zoneEnum.ZONE_4.index,\n            zone_name: zoneEnum.ZONE_4.value,\n            entry_time: new Date(),\n            exit_time: null,\n            blocks: []\n        }\n\n        const newBlock = {\n            block_number: blockNumber,\n            entry_time: new Date(),\n            exit_time: null\n        }\n        newZone.blocks.push(newBlock);\n        result.zones.push(newZone);\n        result.current_zone = zoneEnum.ZONE_4.index;\n        result.current_block = 1;\n        // node.warn(result);\n        await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n            { _id: result._id, },\n            {\n                $set: {\n                    \"zones\": result.zones,\n                    \"current_zone\": zoneEnum.ZONE_4.index,\n                    \"current_block\": blockNumber\n                }\n            }\n        ).then((result) => {\n            node.warn(\"Update new zone success!\");\n        }).catch((error) => {\n            node.warn(error);\n        });\n    }\n}\n\nasync function crossZone(result) {\n    logger(qrData.qr_code, `update cross zone ${result.current_zone}`)\n    //end zone 2\n    await endCrossZone(result, zoneEnum.ZONE_2.index, \"ct_min_at_mj\")\n    //add zone 3\n    await addCrossZone(result, zoneEnum.ZONE_3.index, zoneEnum.ZONE_3.value, \"ct_min_at_buffer\")\n    //new zone 5\n    await preAddObjectCheck(zoneEnum.ZONE_5.index, 1);\n    await newObjectInZone(result, zoneEnum.ZONE_5.index, zoneEnum.ZONE_5.value)\n}\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3112,7 +3110,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 150,
-        "y": 480,
+        "y": 560,
         "wires": [
             [
                 "bbcd838117cb5ea6"
@@ -3127,7 +3125,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 480,
+        "y": 560,
         "wires": []
     },
     {
@@ -3142,7 +3140,7 @@
         "finalize": "",
         "libs": [],
         "x": 360,
-        "y": 480,
+        "y": 560,
         "wires": [
             [
                 "09a63ff4a1dc0259"
@@ -3159,7 +3157,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 140,
-        "y": 520,
+        "y": 600,
         "wires": [
             [
                 "646b01beb68d09e2"
@@ -3174,7 +3172,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 520,
+        "y": 600,
         "wires": []
     },
     {
@@ -3189,7 +3187,7 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 520,
+        "y": 600,
         "wires": [
             [
                 "4c484eec3b95515f"
@@ -3206,7 +3204,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 150,
-        "y": 705,
+        "y": 785,
         "wires": [
             [
                 "57621a8836aaf8f0"
@@ -3221,7 +3219,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 705,
+        "y": 785,
         "wires": []
     },
     {
@@ -3236,7 +3234,7 @@
         "finalize": "",
         "libs": [],
         "x": 360,
-        "y": 705,
+        "y": 785,
         "wires": [
             [
                 "306d0d37297bf377"
@@ -3251,7 +3249,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 740,
+        "y": 820,
         "wires": []
     },
     {
@@ -3266,7 +3264,7 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 740,
+        "y": 820,
         "wires": [
             [
                 "893e9a4bbaee1ca8"
@@ -3283,7 +3281,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 150,
-        "y": 740,
+        "y": 820,
         "wires": [
             [
                 "2357dee3936ea52b"
@@ -3298,7 +3296,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 780,
+        "y": 860,
         "wires": []
     },
     {
@@ -3313,7 +3311,7 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 780,
+        "y": 860,
         "wires": [
             [
                 "87c0d8251ea0e9e1"
@@ -3330,7 +3328,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 150,
-        "y": 780,
+        "y": 860,
         "wires": [
             [
                 "e01623f8f7cd25dd"
@@ -3344,7 +3342,7 @@
         "name": "Export excel",
         "info": "",
         "x": 150,
-        "y": 820,
+        "y": 900,
         "wires": []
     },
     {
@@ -3357,7 +3355,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 170,
-        "y": 860,
+        "y": 940,
         "wires": [
             [
                 "892d9c964df03f55"
@@ -3372,7 +3370,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 860,
+        "y": 940,
         "wires": []
     },
     {
@@ -3387,7 +3385,7 @@
         "finalize": "",
         "libs": [],
         "x": 360,
-        "y": 860,
+        "y": 940,
         "wires": [
             [
                 "e68360a283725a02"
@@ -3404,7 +3402,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 160,
-        "y": 900,
+        "y": 980,
         "wires": [
             [
                 "5d483d0185b292ec"
@@ -3419,7 +3417,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 900,
+        "y": 980,
         "wires": []
     },
     {
@@ -3434,56 +3432,10 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 900,
+        "y": 980,
         "wires": [
             [
                 "5074c4f77c76dae2"
-            ]
-        ]
-    },
-    {
-        "id": "fb79c89b7f852cd7",
-        "type": "function",
-        "z": "3f82c49c8d750693",
-        "name": "House export",
-        "func": "const db = global.get(\"connetion_mongo\");\nconst moment = global.get('moment_timezone');\nconst jwt = global.get(\"jwt\");\nconst dotenv = global.get(\"env\").config().parsed;\nconst bcrypt = global.get(\"bcrypt\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst collectionQR = db.collection(collectionEnum.QR_DATA);\nconst qrLocationEnum = global.get('QrLocationEnum');\nconst XLSX = global.get('xlsx');\n\ntry {\n    if (true) {\n\n        const report = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).find(\n            // {\n            //     record_date_time: {\n            //         $gte: startDate.toDate(),\n            //         $lte: endDate.toDate(),\n            //     },\n            // }\n        ).toArray();\n\n        msg.statusCode = 200;\n        msg.payload = {\n            data: exportToExcel(report)\n        }\n        return msg;\n    } else {\n        msg.statusCode = 400;\n        msg.payload = {\n            \"code\": \"ERR_0004\",\n            \"message\": \"Accesss token หมดอายุหรือไม่ถูกต้อง\",\n            \"data\": null\n        };\n        node.warn(msg);\n        return msg;\n    }\n\n} catch (error) {\n    node.warn(error);\n    msg.statusCode = 400;\n    msg.payload = {\n        \"code\": \"ERR_0004\",\n        \"message\": \"Accesss token หมดอายุหรือไม่ถูกต้อง\",\n        \"data\": null\n    };\n    node.warn(msg);\n    return msg;\n};\n\nfunction removeBearerPrefix(jwt) {\n    if (jwt.startsWith('Bearer ')) {\n        return jwt.substring(7);\n    }\n    return jwt;\n}\n\n\n// Function to validate JWT\nasync function validateJWT(token) {\n    try {\n        // node.warn(token);\n        // node.warn(token);\n        // Verify the token using the secret key\n        const payload = await jwt.verify(token, dotenv.SECRETKEY);\n        // node.warn(payload)\n        // Check if the token has expired\n        const now = Date.now() / 1000; // Convert current time to seconds\n        if (payload.exp < now) {\n            return false;\n        }\n        // If the token is valid and has not expired, return the payload\n        return true;\n    } catch (error) {\n        console.error(\"error: \", error);\n        node.warn(\"error: \" + error);\n        // If there's an error verifying the token, return an error message\n        return false;\n    }\n}\n\nfunction exportToExcel(data) {\n    data = data.map(({ _id, ...rest }) => rest); // remove id\n    const ws = XLSX.utils.json_to_sheet(data);\n    const wb = XLSX.utils.book_new();\n    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');\n    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });\n    return excelBuffer;\n}",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 400,
-        "y": 1100,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "272d6e86a9b8c35d",
-        "type": "inject",
-        "z": "3f82c49c8d750693",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 180,
-        "y": 1100,
-        "wires": [
-            [
-                "fb79c89b7f852cd7"
             ]
         ]
     },
@@ -3494,7 +3446,7 @@
         "name": "Schdule",
         "info": "",
         "x": 140,
-        "y": 660,
+        "y": 740,
         "wires": []
     },
     {
@@ -3504,7 +3456,7 @@
         "name": "Report",
         "info": "",
         "x": 130,
-        "y": 440,
+        "y": 520,
         "wires": []
     },
     {
@@ -3517,7 +3469,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 150,
-        "y": 560,
+        "y": 640,
         "wires": [
             [
                 "f08d74c5ab922ef7"
@@ -3532,7 +3484,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 560,
+        "y": 640,
         "wires": []
     },
     {
@@ -3547,7 +3499,7 @@
         "finalize": "",
         "libs": [],
         "x": 360,
-        "y": 560,
+        "y": 640,
         "wires": [
             [
                 "09a35d242c46c97c"
@@ -3561,7 +3513,7 @@
         "name": "Update installation date",
         "info": "",
         "x": 180,
-        "y": 280,
+        "y": 360,
         "wires": []
     },
     {
@@ -3574,7 +3526,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 180,
-        "y": 320,
+        "y": 400,
         "wires": [
             [
                 "879378cc0791c197"
@@ -3589,7 +3541,7 @@
         "statusCode": "",
         "headers": {},
         "x": 740,
-        "y": 320,
+        "y": 400,
         "wires": []
     },
     {
@@ -3604,7 +3556,7 @@
         "finalize": "",
         "libs": [],
         "x": 530,
-        "y": 320,
+        "y": 400,
         "wires": [
             [
                 "8a16dca622adb014"
@@ -3621,7 +3573,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 210,
-        "y": 360,
+        "y": 440,
         "wires": [
             [
                 "9b86b579c0c356bc"
@@ -3636,7 +3588,7 @@
         "statusCode": "",
         "headers": {},
         "x": 740,
-        "y": 360,
+        "y": 440,
         "wires": []
     },
     {
@@ -3651,7 +3603,7 @@
         "finalize": "",
         "libs": [],
         "x": 530,
-        "y": 360,
+        "y": 440,
         "wires": [
             [
                 "b70a89a59aad3d24"
@@ -3684,7 +3636,7 @@
         "name": "Cross Zone",
         "info": "",
         "x": 150,
-        "y": 960,
+        "y": 1040,
         "wires": []
     },
     {
@@ -3697,7 +3649,7 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 160,
-        "y": 1000,
+        "y": 1080,
         "wires": [
             [
                 "0c7810e4a06ec99a"
@@ -3712,7 +3664,7 @@
         "statusCode": "",
         "headers": {},
         "x": 560,
-        "y": 1000,
+        "y": 1080,
         "wires": []
     },
     {
@@ -3727,10 +3679,90 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 1000,
+        "y": 1080,
         "wires": [
             [
                 "90e6d5f00f32fc26"
+            ]
+        ]
+    },
+    {
+        "id": "e1962f5132fb0453",
+        "type": "tcp request",
+        "z": "3f82c49c8d750693",
+        "name": "",
+        "server": "192.168.150.50",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 200,
+        "y": 300,
+        "wires": [
+            [
+                "b3b6fdc3a83c4b2a"
+            ]
+        ]
+    },
+    {
+        "id": "b3b6fdc3a83c4b2a",
+        "type": "function",
+        "z": "3f82c49c8d750693",
+        "name": "Scan QR",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst getQrData = global.get('getQrData');\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst collectionQR = db.collection(collectionEnum.QR_DATA);\nnode.warn(\"This request is invoked via TCP\");\nnode.warn(`msg::${JSON.stringify(msg)}`);\n\nconst payload = {\n    qr_code_data: msg.payload.replace(/\\r\\n/g, \"\"),\n    location: \"QR_EW_IN\"\n}\nconst res = await getQrData(payload);\nmsg.tempPayload = payload;\nif (! await validateExistQR(payload)) {\n    msg.statusCode = 400;\n    msg.payload = {\n        \"code\": \"ERR_0001\",\n        \"message\": \"มีข้อมูลอยู่ในระบบแล้ว\",\n        \"data\": null\n    };\n    // node.warn(msg);\n} else {\n    msg.qrData = res;\n    msg.statusCode = 200;\n    msg.payload = {\n        \"code\": \"INFO_0000\",\n        \"message\": \"ระบบดำเนินการสำเร็จ\"\n    }\n}\nnode.warn(JSON.stringify(msg));\nreturn msg;\n\nasync function validateExistQR(payload) {\n    node.warn(`payload.qr_code_data:${payload.qr_code_data}`);\n    const query = {\n        qr_code: payload.qr_code_data,\n        location: payload.location\n    }\n\n    const result = await collectionQR.find(query).toArray();\n    if (result.length !== 0) {\n        return false;\n    }\n    return true;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 300,
+        "wires": [
+            [
+                "aebb0a2d4f4aceec"
+            ]
+        ]
+    },
+    {
+        "id": "aebb0a2d4f4aceec",
+        "type": "subflow:0e235a2eb9e7e79b",
+        "z": "3f82c49c8d750693",
+        "name": "",
+        "x": 610,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e638e8ebef3aa111",
+        "type": "inject",
+        "z": "3f82c49c8d750693",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 150,
+        "y": 240,
+        "wires": [
+            [
+                "e1962f5132fb0453"
             ]
         ]
     },
@@ -3848,7 +3880,7 @@
         "type": "function",
         "z": "c50d486d4200cd31",
         "name": "House Status",
-        "func": "const dotenv = global.get(\"env\").config().parsed;\nconst moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\n\n//เพิ่มเงื่อนไขถ้า house ไหน finish แล้วให้นำวัน (Inst date + 2) แล้วน้อยกว่าวันปัจจุบันให้เอาออก\nconst results = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS)\n    .find({ \"is_active\": true })\n    .sort({ \"mj_date\": 1 }) // 1 คือการเรียงลำดับจากน้อยไปมาก (ascending)\n    .toArray();\n// node.warn(results);\nconst resultsLength = results.length;\nfor (let index = 0; index < 15; index++) {\n    const dateNow = moment().startOf('day');\n    const houseRecords = results[index];\n    let mjDate = \"\";\n    if (houseRecords?.mj_date !== undefined){\n        mjDate = moment(houseRecords?.mj_date);\n    }\n\n    const instDate = moment(houseRecords?.installation_date, \"DDMMYYYY\").startOf('day');\n    // node.warn(`instDate:${instDate}`);\n    // node.warn(`dateNow:${dateNow}`);\n    //calculate CT\n    // node.warn(`deviceID:${514 + index}`);\n    const payload = {\n        \"siteID\": dotenv.SIDE_ID,\n        \"deviceID\": 514 + index,\n        \"date\": \" \",\n        \"offset\": -420,\n        \"connection\": \"REST\",\n        \"tagObj\": [\n            {\n                \"status\": true,\n                \"label\": `Unit${index + 1}`,\n                \"value\": houseRecords?.total_unit ? Number(houseRecords?.total_unit) : 0,\n                \"text\": houseRecords?.total_unit ? Number(houseRecords?.total_unit) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Assy${index + 1}`,\n                \"value\": houseRecords?.assy ? Number(houseRecords?.assy) : 0,\n                \"text\": houseRecords?.assy ? Number(houseRecords?.assy) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Finish${index + 1}`,\n                \"value\": houseRecords?.unit_finish ? Number(houseRecords?.unit_finish) : 0,\n                \"text\": houseRecords?.unit_finish ? Number(houseRecords?.unit_finish) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `House_Name${index + 1}`,\n                \"value\": 0,\n                \"text\": houseRecords?.house_name ? houseRecords?.house_name : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Color${index + 1}`,\n                \"value\": houseRecords?.color ? houseRecords?.color : 0, \n                \"text\": houseRecords?.color ? houseRecords?.color : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `MJ${index + 1}`,\n                \"value\": 0,\n                \"text\": mjDate ? mjDate.format('ddd, DD-MMM') : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Inst${index + 1}`,\n                \"value\": 0,\n                \"text\": mjDate ? instDate.format('ddd, DD-MMM') : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Remain${index + 1}`,\n                \"value\": 0,\n                \"text\": dateNow ? (isNaN(instDate.diff(dateNow, 'days')) ? \" \" : instDate.diff(dateNow, 'days')) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `CT${index + 1}`,\n                \"value\": 0,\n                \"text\": houseRecords?.ct ? houseRecords.ct : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Arrow${index + 1}`,\n                \"value\": resultsLength === (index + 1) ? 1 : 0,\n                \"text\": resultsLength === (index + 1) ? 1 : \" \"\n            },\n        ]\n    }\n    msg.method = \"POST\";\n    msg.url = dotenv.ENDPOINT_URL;\n    msg.payload = payload;\n    node.send(msg);\n}\n\n",
+        "func": "const dotenv = global.get(\"env\").config().parsed;\nconst moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\n\n//เพิ่มเงื่อนไขถ้า house ไหน finish แล้วให้นำวัน (Inst date + 2) แล้วน้อยกว่าวันปัจจุบันให้เอาออก\nconst results = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS)\n    .find({ \"is_active\": true })\n    .sort({ \"mj_date\": 1 }) // 1 คือการเรียงลำดับจากน้อยไปมาก (ascending)\n    .toArray();\n// node.warn(results);\nconst resultsLength = results.length;\nfor (let index = 0; index < 15; index++) {\n    const dateNow = moment().startOf('day');\n    const houseRecords = results[index];\n    let mjDate = \"\";\n    if (houseRecords?.mj_date !== undefined){\n        mjDate = moment(houseRecords?.mj_date);\n    }\n\n    const instDate = moment(houseRecords?.installation_date, \"DDMMYYYY\").startOf('day');\n    const diffDays = instDate.diff(dateNow, 'days');\n    // node.warn(`instDate:${instDate}`);\n    // node.warn(`dateNow:${dateNow}`);\n    //calculate CT\n    // node.warn(`deviceID:${514 + index}`);\n    const payload = {\n        \"siteID\": dotenv.SIDE_ID,\n        \"deviceID\": 514 + index,\n        \"date\": \" \",\n        \"offset\": -420,\n        \"connection\": \"REST\",\n        \"tagObj\": [\n            {\n                \"status\": true,\n                \"label\": `Unit${index + 1}`,\n                \"value\": houseRecords?.total_unit ? Number(houseRecords?.total_unit) : 0,\n                \"text\": houseRecords?.total_unit ? Number(houseRecords?.total_unit) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Assy${index + 1}`,\n                \"value\": houseRecords?.assy ? Number(houseRecords?.assy) : 0,\n                \"text\": houseRecords?.assy ? Number(houseRecords?.assy) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Finish${index + 1}`,\n                \"value\": houseRecords?.unit_finish ? Number(houseRecords?.unit_finish) : 0,\n                \"text\": houseRecords?.unit_finish ? Number(houseRecords?.unit_finish) : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `House_Name${index + 1}`,\n                \"value\": 0,\n                \"text\": houseRecords?.house_name ? houseRecords?.house_name : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Color${index + 1}`,\n                \"value\": houseRecords?.color ? houseRecords?.color : 0, \n                \"text\": houseRecords?.color ? houseRecords?.color : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `MJ${index + 1}`,\n                \"value\": 0,\n                \"text\": mjDate ? mjDate.format('ddd, DD-MMM') : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Inst${index + 1}`,\n                \"value\": 0,\n                \"text\": mjDate ? instDate.format('ddd, DD-MMM') : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Remain${index + 1}`,\n                \"value\": 0,\n                \"text\": dateNow ? (!isNaN(diffDays) ? diffDays : \" \") : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `CT${index + 1}`,\n                \"value\": 0,\n                \"text\": houseRecords?.ct ? houseRecords.ct : \" \"\n            },\n            {\n                \"status\": true,\n                \"label\": `Arrow${index + 1}`,\n                \"value\": resultsLength === (index + 1) ? 1 : 0,\n                \"text\": resultsLength === (index + 1) ? 1 : \" \"\n            },\n        ]\n    }\n    msg.method = \"POST\";\n    msg.url = dotenv.ENDPOINT_URL;\n    msg.payload = payload;\n    node.send(msg);\n}\n\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
