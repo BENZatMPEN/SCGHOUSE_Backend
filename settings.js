@@ -471,6 +471,7 @@ module.exports = {
         bcrypt: require('bcryptjs'),
         moment: require('moment'),
         xlsx: require('xlsx'),
+        axios: require('axios')
     },
 
     /** The maximum number of messages nodes will buffer internally as part of their
