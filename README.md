@@ -15,7 +15,7 @@ npm i pm2-logrotate
 
 ```
 # clone project
-git clone https://gitlab.com/chansetthi/production-analysis-service.git
+git clone https://github.com/BENZatMPEN/SCGHOUSE_Backend.git
 ```
 
 ## 1. ตั้งค่า environment variables .env
