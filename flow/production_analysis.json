@@ -551,9 +551,7 @@
             "c834aa8dd89f7db9"
         ],
         "x": 894,
-        "y": 59,
-        "w": 692,
-        "h": 82
+        "y": 59
     },
     {
         "id": "cbeb0e24a9682579",
@@ -589,9 +587,7 @@
             "b9a0727a21f84dc7"
         ],
         "x": 114,
-        "y": 2019,
-        "w": 1552,
-        "h": 382
+        "y": 2019
     },
     {
         "id": "0f014e9aa34272e7",
@@ -628,9 +624,7 @@
             "5fd2dfe819c219c1"
         ],
         "x": 174,
-        "y": 3259,
-        "w": 1192,
-        "h": 462
+        "y": 3259
     },
     {
         "id": "012dea630ee684ba",
@@ -653,9 +647,7 @@
             "d65962f40cee0aed"
         ],
         "x": 114,
-        "y": 2419,
-        "w": 892,
-        "h": 302
+        "y": 2419
     },
     {
         "id": "e8d53e32ddbbd816",
@@ -772,11 +764,11 @@
         "serialParity": "none",
         "serialConnectionDelay": "100",
         "serialAsciiResponseStartDelimiter": "0x3A",
-        "unit_id": 1,
-        "commandDelay": 1,
-        "clientTimeout": 1000,
+        "unit_id": "1",
+        "commandDelay": "1",
+        "clientTimeout": "1000",
         "reconnectOnTimeout": true,
-        "reconnectTimeout": 2000,
+        "reconnectTimeout": "2000",
         "parallelUnitIdsAllowed": true
     },
     {
@@ -4054,7 +4046,7 @@
         "type": "function",
         "z": "3f82c49c8d750693",
         "name": "Scan QR",
-        "func": "const db = global.get(\"connetion_mongo\");\nconst getQrData = global.get('getQrData');\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst collectionQR = db.collection(collectionEnum.QR_DATA);\nnode.warn(\"This request is invoked via TCP\");\nnode.warn(`msg::${JSON.stringify(msg)}`);\n\nconst payload = {\n    qr_code_data: msg.payload.replace(/\\r\\n/g, \"\"),\n    location: \"QR_EW_IN\"\n}\nconst res = await getQrData(payload);\nmsg.tempPayload = payload;\nif (! await validateExistQR(payload)) {\n    msg.statusCode = 400;\n    msg.payload = {\n        \"code\": \"ERR_0001\",\n        \"message\": \"มีข้อมูลอยู่ในระบบแล้ว\",\n        \"data\": null\n    };\n    // node.warn(msg);\n} else {\n    msg.qrData = res;\n    msg.statusCode = 200;\n    msg.payload = {\n        \"code\": \"INFO_0000\",\n        \"message\": \"ระบบดำเนินการสำเร็จ\"\n    }\n}\nnode.warn(JSON.stringify(msg));\nreturn msg;\n\nasync function validateExistQR(payload) {\n    node.warn(`payload.qr_code_data:${payload.qr_code_data}`);\n    const query = {\n        qr_code: payload.qr_code_data,\n        location: payload.location\n    }\n\n    const result = await collectionQR.find(query).toArray();\n    if (result.length !== 0) {\n        return false;\n    }\n    return true;\n}",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst getQrData = global.get('getQrData');\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst collectionQR = db.collection(collectionEnum.QR_DATA);\nnode.warn(\"This request is invoked via TCP\");\nnode.warn(`msg::${JSON.stringify(msg)}`);\n\nconst payload = {\n    qr_code_data: msg.payload.replace(/\\r\\n/g, \"\"),\n    location: \"QR_LOADING_OUT\"\n}\nconst res = await getQrData(payload);\nmsg.tempPayload = payload;\nif (! await validateExistQR(payload)) {\n    msg.statusCode = 400;\n    msg.payload = {\n        \"code\": \"ERR_0001\",\n        \"message\": \"มีข้อมูลอยู่ในระบบแล้ว\",\n        \"data\": null\n    };\n    // node.warn(msg);\n} else {\n    msg.qrData = res;\n    msg.statusCode = 200;\n    msg.payload = {\n        \"code\": \"INFO_0000\",\n        \"message\": \"ระบบดำเนินการสำเร็จ\"\n    }\n}\nnode.warn(JSON.stringify(msg));\nreturn msg;\n\nasync function validateExistQR(payload) {\n    node.warn(`payload.qr_code_data:${payload.qr_code_data}`);\n    const query = {\n        qr_code: payload.qr_code_data,\n        location: payload.location\n    }\n\n    const result = await collectionQR.find(query).toArray();\n    if (result.length !== 0) {\n        return false;\n    }\n    return true;\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -4985,7 +4977,7 @@
         "type": "function",
         "z": "c50d486d4200cd31",
         "name": "Update House Status",
-        "func": "const dotenv = global.get(\"env\").config().parsed;\nconst moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\n\n//เพิ่มเงื่อนไขถ้า house ไหน finish แล้วให้นำวัน (Inst date + 2) แล้วน้อยกว่าวันปัจจุบันให้เอาออก\nconst results = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS)\n    .find({ \"is_active\": true })\n    .sort({ \"mj_date\": 1 }) // 1 คือการเรียงลำดับจากน้อยไปมาก (ascending)\n    .toArray();\n\nconst resultsLength = results.length;\n\nresults.forEach(async function(element) {\n    const installationDate = element?.installation_date;\n    if (installationDate) {\n        const instDate = moment(installationDate, \"DDMMYYYY\").add(2, 'days');\n        const isAfterToday = instDate.isAfter(moment());\n        // node.warn(element);\n        if (!isAfterToday && element.unit_finish === element.total_unit) {\n            await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n                { house_code: element.house_code },\n                {\n                    $set: {\n                        \"is_active\": false\n                    }\n                }\n            ).then((result) => {\n                // node.warn(`Update status house_code:${element.house_code} success!`);\n            }).catch((error) => {\n                node.warn(error);\n            });\n        } else {\n            // node.warn(\"instDate น้อยกว่าหรือเท่ากับวันปัจจุบัน\");\n        }\n    } else {\n        node.warn(\"Installation date is not available\");\n    }\n    // Update is_active house record เมื่อ total_unit = unit_finish\n    const total_unit = Number(element.total_unit);\n    const unit_finish = Number(element.unit_finish);\n    if (total_unit === unit_finish){\n        await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n            { house_code: element.house_code },\n            {\n                $set: {\n                    \"is_active\": false\n                }\n            }\n        ).then((result) => {\n            // node.warn(`Update status house_code:${element.house_code} success!`);\n        }).catch((error) => {\n            node.warn(error);\n        });\n    }\n});\n// for (let index = 0; index < 15; index++) {\n//     const houseRecords = results[index];\n//     const installationDate = houseRecords?.installation_date;\n//     if (installationDate) {\n//         const instDate = moment(installationDate, \"DDMMYYYY\").add(2, 'days');\n//         const isAfterToday = instDate.isAfter(moment());\n\n//         if (!isAfterToday) {\n//             node.warn(houseRecords);\n//             await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n//                 { house_code: houseRecords.house_code },\n//                 {\n//                     $set: {\n//                         \"is_active\": false\n//                     }\n//                 }\n//             ).then((result) => {\n//                 node.warn(`Update status house_code:${houseRecords.house_code} success!`);\n//             }).catch((error) => {\n//                 node.warn(error);\n//             });\n//         } else {\n//             // node.warn(\"instDate น้อยกว่าหรือเท่ากับวันปัจจุบัน\");\n//         }\n//     } else {\n//         node.warn(\"Installation date is not available\");\n//     }\n// }\n\n",
+        "func": "const dotenv = global.get(\"env\").config().parsed;\nconst moment = global.get('moment_timezone');\nconst db = global.get(\"connetion_mongo\");\nconst collectionEnum = global.get(\"CollectionEnum\");\n\nconst results = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS)\n    .find({ \"is_active\": true })\n    .sort({ \"mj_date\": 1 })\n    .toArray();\n\nnode.warn(`Fetched ${results.length} records`);\n\nfor (const element of results) {\n    try {\n        const installationDate = element?.installation_date;\n        const total_unit = Number(element.total_unit);\n        const unit_finish = Number(element.unit_finish);\n\n        if (installationDate) {\n            const instDate = moment(installationDate, \"DDMMYYYY\").add(2, 'days');\n            const isAfterToday = instDate.isAfter(moment());\n\n            node.warn({\n                house_code: element.house_code,\n                installationDate,\n                instDate: instDate.format(\"YYYY-MM-DD\"),\n                today: moment().format(\"YYYY-MM-DD\"),\n                isAfterToday,\n                total_unit,\n                unit_finish\n            });\n            node.warn(`element.house_code:${element.house_code}|isAfterToday:${isAfterToday}|total_unit:${total_unit}|${unit_finish}`)\n            if (!isAfterToday && total_unit === unit_finish) {\n                const result = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n                    { house_code: element.house_code },\n                    { $set: { \"is_active\": false } }\n                );\n                node.warn(`Updated (Finish+2days): ${element.house_code} | modified: ${result.modifiedCount}`);\n                continue;\n            }\n        } else {\n            node.warn(`House ${element.house_code}: Installation date missing`);\n        }\n\n        if (total_unit === unit_finish) {\n            const result = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n                { house_code: element.house_code },\n                { $set: { \"is_active\": false } }\n            );\n            node.warn(`Updated (Finish): ${element.house_code} | modified: ${result.modifiedCount}`);\n        }\n\n    } catch (err) {\n        node.error(`Error updating ${element.house_code}: ${err.message}`);\n    }\n}\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -12003,7 +11995,7 @@
         "type": "function",
         "z": "b1b087dc079885be",
         "name": "Avg. Productive",
-        "func": "const createIndexArray = global.get('createIndexArray');\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\n\nconst month = msg.month;\n// node.warn(month);\nconst filterMonth = month.filter(item => item.entry_time !== null && item.exit_time !== null);\n// node.warn(filterMonth);\n// สร้างออบเจ็กต์เพื่อเก็บค่าเฉลี่ยของแต่ละ type\nconst result = [\n    {\n        type: \"N\",\n        count: 0,\n        avg: 0\n    },\n    {\n        type: \"B,C\",\n        count: 0,\n        avg: 0\n    },\n    {\n        type: \"R\",\n        count: 0,\n        avg: 0\n    }\n];\n\nconst newData = result.map(resultItem => {\n    const { type } = resultItem;\n    const filteredData = filterMonth.filter(item => item.unit_type === type);\n    // node.warn(`filteredData`);\n    // node.warn(filteredData);\n    const total = filteredData.reduce((sum, item) => sum + moment.duration(moment(item.exit_time) - moment(item.entry_time)).asMinutes(), 0);\n    const count = filteredData.length;\n    // node.warn(`type:${type}`);\n    // node.warn(`total:${total}`);\n    // node.warn(`count:${count}`);\n    // node.warn(`===================================`);\n    const avg = count > 0 ? total / count : 0;\n\n    return {\n        type,\n        count,\n        avg\n    };\n});\n// node.warn(newData);\n//send data to modbus\nnewData.map((item) => {\n    if (item.type === 'N'){\n        sendSingleValue(Math.round(item.avg), 319);\n    } else if (item.type === 'B,C') {\n        sendSingleValue(Math.round(item.avg), 320);\n    } else if (item.type === 'R'){\n        sendSingleValue(Math.round(item.avg), 321);\n    }\n})\n\n\nfunction sendSingleValue(value, address) {\n    // node.warn(`value:${value}, address:${address}`)\n    const fc = 6;\n    const addresses = 1;     //Number of ADRRESS do want to write\n    let buf = Buffer.alloc(4);\n    buf.writeUInt16BE(value);\n    const values = [(buf[0] * 256 + buf[1]), (buf[2] * 256) + buf[3]];\n    msg.payload = { \"value\": values, 'fc': fc, 'unitid': 1, 'address': address, 'quantity': addresses };\n    node.send(msg);\n}\n\n",
+        "func": "const createIndexArray = global.get('createIndexArray');\nconst moment = global.get('moment_timezone');\nconst startOfToday = moment().startOf(\"day\");\nconst endOfToday = moment().endOf(\"day\");\nconst calculateTotalWorkMinutes = global.get('calculateTotalWorkMinutes');\n\nconst month = msg.month;\n\n// กรองเบื้องต้น เอาเฉพาะที่มีเวลาเข้า-ออกครบ\nconst filterMonth = month.filter(item => item.entry_time !== null && item.exit_time !== null);\n\n// สร้างออบเจ็กต์โครงสร้างผลลัพธ์\nconst result = [\n    { type: \"N\", count: 0, avg: 0 },\n    { type: \"B,C\", count: 0, avg: 0 },\n    { type: \"R\", count: 0, avg: 0 }\n];\n\n// --- ส่วนคำนวณใหม่ (เพิ่ม Logic กรองค่าผิดปกติ) ---\nconst newData = result.map(resultItem => {\n    const { type } = resultItem;\n\n    // 1. ดึงข้อมูลตาม Type\n    const typeData = filterMonth.filter(item => item.unit_type === type);\n\n    // 2. กรองข้อมูลขยะ (Zombie Data)\n    // เงื่อนไข: ระยะเวลาต้องไม่ติดลบ และ ไม่เกิน 24 ชั่วโมง (1440 นาที)\n    const validData = typeData.filter(item => {\n        const duration = moment.duration(moment(item.exit_time) - moment(item.entry_time)).asMinutes();\n        // ถ้าค่ามากกว่า 1440 นาที (เช่น 79711) จะถูกตัดทิ้งตรงนี้\n        return duration >= 0 && duration <= 1440;\n    });\n\n    // 3. หาผลรวมจากข้อมูลที่ถูกต้องแล้ว\n    const total = validData.reduce((sum, item) => {\n        return sum + moment.duration(moment(item.exit_time) - moment(item.entry_time)).asMinutes();\n    }, 0);\n\n    const count = validData.length;\n    const avg = count > 0 ? total / count : 0;\n\n    // Optional: Log ดูว่าตัดข้อมูลออกไปเท่าไหร่\n    // if (typeData.length !== count) {\n    //     node.warn(`Type ${type}: ตัดข้อมูลผิดปกติออก ${typeData.length - count} รายการ`);\n    // }\n\n    return {\n        type,\n        count,\n        avg\n    };\n});\n\n// node.warn(newData);\n\n// --- ส่งข้อมูลเข้า Modbus ---\nnewData.forEach((item) => {\n    // ปัดเศษทศนิยมก่อนส่ง\n    const sendVal = Math.round(item.avg);\n\n    if (item.type === 'N') {\n        sendSingleValue(sendVal, 319);\n    } else if (item.type === 'B,C') {\n        sendSingleValue(sendVal, 320);\n    } else if (item.type === 'R') {\n        sendSingleValue(sendVal, 321);\n    }\n});\n\n\nfunction sendSingleValue(value, address) {\n    // --- 1. Safety Check: ป้องกัน Error Out of Range ---\n    // ถ้าค่าเกิน 65535 (16-bit Int Max) ให้ปัดลงมาเหลือ 65535\n    if (value > 65535) {\n        node.warn(`[Warning] Value ${value} at Addr ${address} เกินขีดจำกัด 16-bit. ระบบปรับค่าเป็น 65535`);\n        value = 65535;\n    }\n    // ถ้าค่าต่ำกว่า 0 ให้ปรับเป็น 0\n    if (value < 0) {\n        value = 0;\n    }\n\n    // --- 2. Modbus Write Logic ---\n    const fc = 6; // Write Single Register\n    const quantity = 1;\n\n    // สร้าง Buffer ขนาด 2 bytes สำหรับ UInt16\n    let buf = Buffer.alloc(2);\n    buf.writeUInt16BE(value);\n\n    // อ่านค่าจาก Buffer กลับมาเป็น Array เพื่อส่งให้ Node Modbus\n    // (สำหรับ FC6 ส่งค่าเดียวใน Array)\n    const values = [buf.readUInt16BE(0)];\n\n    msg.payload = {\n        \"value\": values,\n        'fc': fc,\n        'unitid': 1,\n        'address': address,\n        'quantity': quantity\n    };\n\n    node.send(msg);\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
