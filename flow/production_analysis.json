@@ -8,6 +8,14 @@
         "env": []
     },
     {
+        "id": "dcd4ecfd21ec52c9",
+        "type": "tab",
+        "label": "TCP Scan QR",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "3f82c49c8d750693",
         "type": "tab",
         "label": "API",
@@ -104,7 +112,7 @@
         ],
         "out": [
             {
-                "x": 860,
+                "x": 900,
                 "y": 100,
                 "wires": [
                     {
@@ -126,49 +134,20 @@
         "category": "",
         "in": [
             {
-                "x": 60,
-                "y": 200,
+                "x": 120,
+                "y": 140,
                 "wires": [
                     {
-                        "id": "f26c4b9289cd1eb0"
+                        "id": "acf8ba1bb877ac3d"
                     }
                 ]
             }
         ],
         "out": [
             {
-                "x": 1300,
-                "y": 260,
-                "wires": [
-                    {
-                        "id": "9f4f5f1339e469df",
-                        "port": 0
-                    },
-                    {
-                        "id": "5f4725bafcc960ff",
-                        "port": 5
-                    },
-                    {
-                        "id": "f26c4b9289cd1eb0",
-                        "port": 1
-                    },
-                    {
-                        "id": "9671a2afe61bd3d6",
-                        "port": 0
-                    },
-                    {
-                        "id": "68a05edaab75714c",
-                        "port": 0
-                    },
-                    {
-                        "id": "931d16b27c81d3cb",
-                        "port": 0
-                    },
-                    {
-                        "id": "a9ef5c506a9e398c",
-                        "port": 0
-                    }
-                ]
+                "x": 1260,
+                "y": 240,
+                "wires": []
             }
         ],
         "env": [],
@@ -587,7 +566,9 @@
             "b9a0727a21f84dc7"
         ],
         "x": 114,
-        "y": 2019
+        "y": 2019,
+        "w": 1552,
+        "h": 382
     },
     {
         "id": "0f014e9aa34272e7",
@@ -647,7 +628,9 @@
             "d65962f40cee0aed"
         ],
         "x": 114,
-        "y": 2419
+        "y": 2419,
+        "w": 892,
+        "h": 302
     },
     {
         "id": "e8d53e32ddbbd816",
@@ -879,6 +862,13 @@
         "showLogs": true
     },
     {
+        "id": "50962d9dbd2e90fd",
+        "type": "semaphore-config",
+        "z": "0e235a2eb9e7e79b",
+        "name": "main_subflow_qr",
+        "capacity": "1"
+    },
+    {
         "id": "736ed972943b9e1c",
         "type": "catch",
         "z": "0c43390420f21dec",
@@ -995,7 +985,7 @@
         "z": "6009ebac4f7ca066",
         "config": "a0d1da37e2bbfdd6",
         "name": "",
-        "x": 710,
+        "x": 750,
         "y": 100,
         "wires": [
             []
@@ -1008,11 +998,12 @@
         "name": "",
         "scope": null,
         "uncaught": false,
-        "x": 380,
+        "x": 620,
         "y": 220,
         "wires": [
             [
-                "2877bdc1b3517a20"
+                "2877bdc1b3517a20",
+                "3a759043855016ce"
             ]
         ]
     },
@@ -1027,7 +1018,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 550,
+        "x": 770,
         "y": 220,
         "wires": [
             []
@@ -1142,7 +1133,9 @@
             [
                 "a9ef5c506a9e398c"
             ],
-            []
+            [
+                "d591c4d75ba78a9c"
+            ]
         ]
     },
     {
@@ -1153,7 +1146,9 @@
         "x": 800,
         "y": 40,
         "wires": [
-            []
+            [
+                "d591c4d75ba78a9c"
+            ]
         ]
     },
     {
@@ -1178,13 +1173,15 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 260,
-        "y": 260,
+        "x": 300,
+        "y": 60,
         "wires": [
             [
                 "5f4725bafcc960ff"
             ],
-            []
+            [
+                "d591c4d75ba78a9c"
+            ]
         ]
     },
     {
@@ -1195,7 +1192,9 @@
         "x": 810,
         "y": 80,
         "wires": [
-            []
+            [
+                "d591c4d75ba78a9c"
+            ]
         ]
     },
     {
@@ -1206,7 +1205,9 @@
         "x": 880,
         "y": 120,
         "wires": [
-            []
+            [
+                "d591c4d75ba78a9c"
+            ]
         ]
     },
     {
@@ -1217,7 +1218,9 @@
         "x": 800,
         "y": 160,
         "wires": [
-            []
+            [
+                "d591c4d75ba78a9c"
+            ]
         ]
     },
     {
@@ -1227,6 +1230,34 @@
         "name": "",
         "x": 860,
         "y": 200,
+        "wires": [
+            [
+                "d591c4d75ba78a9c"
+            ]
+        ]
+    },
+    {
+        "id": "acf8ba1bb877ac3d",
+        "type": "semaphore-take",
+        "z": "0e235a2eb9e7e79b",
+        "config": "50962d9dbd2e90fd",
+        "name": "",
+        "x": 340,
+        "y": 360,
+        "wires": [
+            [
+                "f26c4b9289cd1eb0"
+            ]
+        ]
+    },
+    {
+        "id": "d591c4d75ba78a9c",
+        "type": "semaphore-leave",
+        "z": "0e235a2eb9e7e79b",
+        "config": "50962d9dbd2e90fd",
+        "name": "",
+        "x": 1150,
+        "y": 340,
         "wires": [
             []
         ]
@@ -1369,7 +1400,8 @@
         "y": 340,
         "wires": [
             [
-                "2aded06278c76869"
+                "2aded06278c76869",
+                "c7988dd53230e08f"
             ]
         ]
     },
@@ -1646,7 +1678,8 @@
         "y": 280,
         "wires": [
             [
-                "f0801073238d71cf"
+                "f0801073238d71cf",
+                "37719fabfd1d6dd8"
             ]
         ]
     },
@@ -1740,7 +1773,8 @@
         "y": 220,
         "wires": [
             [
-                "211f046bda038b98"
+                "211f046bda038b98",
+                "d0d71fe0d032b9e2"
             ]
         ]
     },
@@ -2031,7 +2065,7 @@
         "type": "function",
         "z": "ed16bca66bbf3ac0",
         "name": "Update weight",
-        "func": "// ดึงตัวแปรที่จำเป็นจาก global\nconst logger = global.get(\"loggerInfo\");\nconst db = global.get(\"connetion_mongo\");\nconst moment = global.get(\"moment_timezone\");\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst calculateTotalWorkMinutes = global.get(\"calculateTotalWorkMinutes\");\nconst calculateCT = global.get(\"calculateCT\");\nconst weight = parseFloat(msg.payload);\n\ntry {\n    logger(\"DEBUG\", \"เริ่มกระบวนการอัปเดตน้ำหนัก\");\n\n    // ตรวจสอบว่าน้ำหนักที่รับมาเป็นตัวเลขและมีค่ามากกว่า 0\n    if (isNaN(weight) || weight <= 0) {\n        logger(\"ERROR\", `Invalid weight value provided: ${weight}`);\n        return { ...msg, error: \"Invalid weight value provided.\" };\n    }\n    logger(\"DEBUG\", `น้ำหนักที่ได้รับ: ${weight}`);\n\n    // ดึงข้อมูลที่ตรงตามเงื่อนไขจากฐานข้อมูล\n    logger(\"DEBUG\", \"กำลังดึงข้อมูลจากฐานข้อมูล...\");\n    const results = await db\n        .collection(collectionEnum.PRODUCTION_DATA)\n        .find({\n            current_zone: zoneEnum.ZONE_12.index,\n            is_active: false,\n            weight: null,\n            exit_time: { $ne: null },\n        })\n        .sort({ exit_time: 1 })\n        .toArray();\n\n    logger(\"DEBUG\", `จำนวนเอกสารที่พบ: ${results.length}`);\n\n    if (results.length === 0) {\n        logger(\"ERROR\", \"Cannot update weight because no data found.\");\n        return { ...msg, error: \"No data found for weight update.\" };\n    }\n\n    // ใช้ for...of เพื่อทำงานแบบ Sequential (ทีละรายการ)\n    for (const [index, result] of results.entries()) {\n        if (!result.qr_data_detail || !result.qr_data_detail.data) {\n            logger(\"ERROR\", \"Missing qr_data_detail or data field in result.\");\n            continue;\n        }\n\n        const qr_data = result.qr_data_detail.qr_code || \"N/A\";\n        const updateWeight = index === 0 ? weight : 0;\n        logger(\"DEBUG\", `Updating weight for QR: ${qr_data} | Weight: ${updateWeight}`);\n\n        // อัปเดตน้ำหนักใน PRODUCTION_DATA\n        await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n            { _id: result._id },\n            {\n                $set: {\n                    weight: updateWeight,\n                    current_zone: 13\n                }\n            }\n        );\n        logger(\"INFO\", `Updated weight: ${updateWeight} for QR: ${qr_data} success!`);\n\n        // อัปเดตข้อมูลใน PART_PRODUCTION_RECORDS\n        await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n            { qr_code: qr_data },\n            {\n                $set: {\n                    weight: updateWeight,\n                    ct_min_at_weight: await calculateTotalWorkMinutes(\n                        moment(result.exit_time),\n                        moment()\n                    ),\n                    part_finish_date_time: new Date()\n                },\n            }\n        );\n        logger(\"INFO\", `Update part production record for QR: ${qr_data} success!`);\n\n        // ตรวจสอบว่าอะไหล่ทั้งหมดของ house นั้นเสร็จสมบูรณ์หรือไม่\n        const { house_code: houseCode, total_units: totalUnits } = result.qr_data_detail.data;\n        logger(\"DEBUG\", `House Code: ${houseCode} | Total Units: ${totalUnits}`);\n\n        const partCount = await db\n            .collection(collectionEnum.PART_PRODUCTION_RECORDS)\n            .countDocuments({\n                house_code: houseCode,\n                ct_min_at_weight: { $ne: null },\n            });\n\n        logger(\"DEBUG\", `Part Count for House ${houseCode}: ${partCount} / ${totalUnits}`);\n\n        if (partCount === Number(totalUnits)) {\n            logger(\"DEBUG\", `House ${houseCode} is completing...`);\n            await completeHouseProduction(houseCode, totalUnits);\n        } else {\n            await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n                { house_code: houseCode },\n                { $inc: { unit_finish: 1 } }\n            );\n            logger(\"INFO\", `Incremented unit_finish for House ${houseCode}.`);\n        }\n    }\n\n    logger(\"DEBUG\", \"กระบวนการอัปเดตน้ำหนักเสร็จสิ้น\");\n    return msg;\n\n} catch (error) {\n    logger(\"ERROR\", `Error during weight update process: ${error.message}`);\n    return { ...msg, error: error.message };\n}\n\n// ฟังก์ชันสำหรับทำให้ house production เสร็จสมบูรณ์\nasync function completeHouseProduction(houseCode, totalUnits) {\n    logger(\"DEBUG\", `Completing House Production for House Code: ${houseCode}`);\n\n    const houseRecord = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS)\n        .findOneAndUpdate(\n            { house_code: houseCode, total_unit: totalUnits },\n            {\n                $set: {\n                    all_part_finish_date_time: new Date(),\n                    status: \"Completed\",\n                },\n            },\n            { returnDocument: \"after\" }\n        );\n\n    if (!houseRecord.value) {\n        logger(\"ERROR\", `No house record found for completion of House ${houseCode}`);\n        return;\n    }\n\n    logger(\"DEBUG\", `Calculating duration and CT for House ${houseCode}`);\n    const houseDuration = await calculateTotalWorkMinutes(\n        moment(houseRecord.value.entry_time),\n        moment()\n    );\n    const houseCT = await calculateCT(\n        moment(houseRecord.value.entry_time),\n        moment()\n    );\n\n    logger(\"DEBUG\", `Duration: ${houseDuration} | CT: ${houseCT}`);\n\n    await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n        { house_code: houseCode, total_unit: totalUnits },\n        {\n            $set: {\n                duration: houseDuration,\n                ct: houseCT,\n            },\n        }\n    );\n    logger(\"INFO\", `House ${houseCode} marked as Completed with CT: ${houseCT}.`);\n\n    await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateMany(\n        { house_code: houseCode, total_unit: totalUnits },\n        {\n            $set: {\n                ct: houseCT,\n                status: \"Completed\",\n            },\n        }\n    );\n    logger(\"INFO\", `Updated all part records for House ${houseCode} to Completed.`);\n}",
+        "func": "// ดึงตัวแปรที่จำเป็นจาก global\nconst logger = global.get(\"loggerInfo\");\nconst db = global.get(\"connetion_mongo\");\nconst moment = global.get(\"moment_timezone\");\nconst zoneEnum = global.get(\"ZoneEnum\");\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst calculateTotalWorkMinutes = global.get(\"calculateTotalWorkMinutes\");\nconst calculateCT = global.get(\"calculateCT\");\nconst weight = parseFloat(msg.payload);\n\ntry {\n    logger(\"DEBUG\", \"เริ่มกระบวนการอัปเดตน้ำหนัก\");\n\n    // ตรวจสอบว่าน้ำหนักที่รับมาเป็นตัวเลขและมีค่ามากกว่า 0\n    if (isNaN(weight) || weight <= 0) {\n        logger(\"ERROR\", `Invalid weight value provided: ${weight}`);\n        return { ...msg, error: \"Invalid weight value provided.\" };\n    }\n    logger(\"DEBUG\", `น้ำหนักที่ได้รับ: ${weight}`);\n\n    // ดึงข้อมูลที่ตรงตามเงื่อนไขจากฐานข้อมูล\n    logger(\"DEBUG\", \"กำลังดึงข้อมูลจากฐานข้อมูล...\");\n    const results = await db\n        .collection(collectionEnum.PRODUCTION_DATA)\n        .find({\n            current_zone: zoneEnum.ZONE_12.index,\n            is_active: false,\n            weight: null,\n            exit_time: { $ne: null },\n        })\n        .sort({ exit_time: 1 })\n        .toArray();\n\n    logger(\"DEBUG\", `จำนวนเอกสารที่พบ: ${results.length}`);\n\n    if (results.length === 0) {\n        logger(\"ERROR\", \"Cannot update weight because no data found.\");\n        return { ...msg, error: \"No data found for weight update.\" };\n    }\n\n    // ใช้ for...of เพื่อทำงานแบบ Sequential (ทีละรายการ)\n    for (const [index, result] of results.entries()) {\n        if (!result.qr_data_detail || !result.qr_data_detail.data) {\n            logger(\"ERROR\", \"Missing qr_data_detail or data field in result.\");\n            continue;\n        }\n\n        const qr_data = result.qr_data_detail.qr_code || \"N/A\";\n        const updateWeight = index === 0 ? weight : 0;\n        logger(\"DEBUG\", `Updating weight for QR: ${qr_data} | Weight: ${updateWeight}`);\n\n        // อัปเดตน้ำหนักใน PRODUCTION_DATA\n        await db.collection(collectionEnum.PRODUCTION_DATA).updateOne(\n            { _id: result._id },\n            {\n                $set: {\n                    weight: updateWeight,\n                    current_zone: 13\n                }\n            }\n        );\n        logger(\"INFO\", `Updated weight: ${updateWeight} for QR: ${qr_data} success!`);\n\n        // อัปเดตข้อมูลใน PART_PRODUCTION_RECORDS\n        await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateOne(\n            { qr_code: qr_data },\n            {\n                $set: {\n                    weight: updateWeight,\n                    ct_min_at_weight: await calculateTotalWorkMinutes(\n                        moment(result.exit_time),\n                        moment()\n                    ),\n                    part_finish_date_time: new Date()\n                },\n            }\n        );\n        logger(\"INFO\", `Update part production record for QR: ${qr_data} success!`);\n\n        // ตรวจสอบว่าอะไหล่ทั้งหมดของ house นั้นเสร็จสมบูรณ์หรือไม่\n        const { house_code: houseCode, total_units: totalUnits } = result.qr_data_detail.data;\n        logger(\"DEBUG\", `House Code: ${houseCode} | Total Units: ${totalUnits}`);\n\n        const partCount = await db\n            .collection(collectionEnum.PART_PRODUCTION_RECORDS)\n            .countDocuments({\n                house_code: houseCode,\n                ct_min_at_weight: { $ne: null },\n            });\n\n        logger(\"DEBUG\", `Part Count for House ${houseCode}: ${partCount} / ${totalUnits}`);\n\n        if (partCount === Number(totalUnits)) {\n            logger(\"DEBUG\", `House ${houseCode} is completing...`);\n            await completeHouseProduction(houseCode, totalUnits);\n        } else {\n            await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n                { house_code: houseCode },\n                { $inc: { unit_finish: 1 } }\n            );\n            logger(\"INFO\", `Incremented unit_finish for House ${houseCode}.`);\n        }\n    }\n\n    logger(\"DEBUG\", \"กระบวนการอัปเดตน้ำหนักเสร็จสิ้น\");\n    return msg;\n\n} catch (error) {\n    logger(\"ERROR\", `Error during weight update process: ${error.message}`);\n    return { ...msg, error: error.message };\n}\n\n// ฟังก์ชันสำหรับทำให้ house production เสร็จสมบูรณ์\nasync function completeHouseProduction(houseCode, totalUnits) {\n    logger(\"DEBUG\", `Completing House Production for House Code: ${houseCode}`);\n\n    const houseRecord = await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS)\n        .findOneAndUpdate(\n            { house_code: houseCode, total_unit: totalUnits },\n            {\n                $set: {\n                    all_part_finish_date_time: new Date(),\n                    status: \"Completed\",\n                    unit_finish: totalUnits\n                },\n            },\n            { returnDocument: \"after\" }\n        );\n\n    if (!houseRecord.value) {\n        logger(\"ERROR\", `No house record found for completion of House ${houseCode}`);\n        return;\n    }\n\n    logger(\"DEBUG\", `Calculating duration and CT for House ${houseCode}`);\n    const houseDuration = await calculateTotalWorkMinutes(\n        moment(houseRecord.value.entry_time),\n        moment()\n    );\n    const houseCT = await calculateCT(\n        moment(houseRecord.value.entry_time),\n        moment()\n    );\n\n    logger(\"DEBUG\", `Duration: ${houseDuration} | CT: ${houseCT}`);\n\n    await db.collection(collectionEnum.HOUSE_PRODUCTION_RECORDS).updateOne(\n        { house_code: houseCode, total_unit: totalUnits },\n        {\n            $set: {\n                duration: houseDuration,\n                ct: houseCT,\n            },\n        }\n    );\n    logger(\"INFO\", `House ${houseCode} marked as Completed with CT: ${houseCT}.`);\n\n    await db.collection(collectionEnum.PART_PRODUCTION_RECORDS).updateMany(\n        { house_code: houseCode, total_unit: totalUnits },\n        {\n            $set: {\n                ct: houseCT,\n                status: \"Completed\",\n            },\n        }\n    );\n    logger(\"INFO\", `Updated all part records for House ${houseCode} to Completed.`);\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2174,7 +2208,8 @@
         "y": 300,
         "wires": [
             [
-                "9b8cf6d7844e75ee"
+                "9b8cf6d7844e75ee",
+                "42623bfeb08be299"
             ]
         ]
     },
@@ -3208,6 +3243,306 @@
         ]
     },
     {
+        "id": "4bc9ed0dd5751272",
+        "type": "tcp request",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "server": "192.168.150.50",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 400,
+        "y": 80,
+        "wires": [
+            [
+                "6482aaa2e2efb59e"
+            ]
+        ]
+    },
+    {
+        "id": "6482aaa2e2efb59e",
+        "type": "function",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "Scan QR",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst getQrData = global.get('getQrData');\nconst collectionEnum = global.get(\"CollectionEnum\");\nconst collectionQR = db.collection(collectionEnum.QR_DATA);\nnode.warn(\"This request is invoked via TCP\");\nnode.warn(`msg::${JSON.stringify(msg)}`);\n\nconst payload = {\n    qr_code_data: msg.payload.replace(/\\r\\n/g, \"\"),\n    location: \"QR_LOADING_OUT\"\n}\nconst res = await getQrData(payload);\nmsg.tempPayload = payload;\nif (! await validateExistQR(payload)) {\n    msg.statusCode = 400;\n    msg.payload = {\n        \"code\": \"ERR_0001\",\n        \"message\": \"มีข้อมูลอยู่ในระบบแล้ว\",\n        \"data\": null\n    };\n    // node.warn(msg);\n} else {\n    msg.qrData = res;\n    msg.statusCode = 200;\n    msg.payload = {\n        \"code\": \"INFO_0000\",\n        \"message\": \"ระบบดำเนินการสำเร็จ\"\n    }\n}\nnode.warn(JSON.stringify(msg));\nreturn msg;\n\nasync function validateExistQR(payload) {\n    node.warn(`payload.qr_code_data:${payload.qr_code_data}`);\n    const query = {\n        qr_code: payload.qr_code_data,\n        location: payload.location\n    }\n\n    const result = await collectionQR.find(query).toArray();\n    if (result.length !== 0) {\n        return false;\n    }\n    return true;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 80,
+        "wires": [
+            [
+                "d67ffe365bf4665f"
+            ]
+        ]
+    },
+    {
+        "id": "c3a4281cac150cd5",
+        "type": "subflow:0e235a2eb9e7e79b",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "x": 930,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d67ffe365bf4665f",
+        "type": "debug",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ee93f6a90e3277df",
+        "type": "tcp request",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "server": "192.168.150.50",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 380,
+        "y": 500,
+        "wires": [
+            [
+                "b6c743e8e2adbbc3"
+            ]
+        ]
+    },
+    {
+        "id": "b6c743e8e2adbbc3",
+        "type": "function",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "Scan QR QR_LOADING_OUT",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionQR = db.collection(global.get(\"CollectionEnum\").QR_DATA);\nconst getQrData = global.get(\"getQrData\");\n\n// [LOG 1]: ข้อมูลดิบที่รับมาจาก TCP\nnode.log(`[Scan QR] Started. Raw TCP Payload QR_LOADING_OUT: \"${msg.payload}\"`);\n\nconst rawQrCode = msg.payload.replace(/\\r\\n/g, \"\").trim();\nmsg.tempPayload = {\n    qr_code_data: rawQrCode,\n    location: \"QR_LOADING_OUT\"\n};\n\n// [LOG 2]: ข้อมูลที่ทำความสะอาด (Clean) เรียบร้อยแล้ว\nnode.log(`[Scan QR] Parsed Payload: ${JSON.stringify(msg.tempPayload)}`);\n\ntry {\n    // [LOG 3]: เริ่มค้นหาใน Database\n    node.log(`[Scan QR] Checking for duplicate QR in DB...`);\n\n    const isExist = await collectionQR.findOne({\n        qr_code: msg.tempPayload.qr_code_data,\n        location: msg.tempPayload.location\n    });\n\n    if (isExist) {\n        msg.statusCode = 400;\n        // [LOG 4]: กรณีเจอข้อมูลซ้ำ (ใช้ warn เพื่อให้เห็นชัดใน Debug)\n        node.warn(`[Scan QR] Duplicate QR found: ${rawQrCode} at ${msg.tempPayload.location}. Routing to error flow (400).`);\n    } else {\n        // [LOG 5]: ไม่ซ้ำ เริ่มดึงข้อมูลเพิ่มเติม\n        node.log(`[Scan QR] QR is new. Fetching additional data via getQrData...`);\n\n        msg.qrData = await getQrData(msg.tempPayload);\n        msg.statusCode = 200;\n\n        // [LOG 6]: ดึงข้อมูลสำเร็จ\n        node.log(`[Scan QR] Data fetched successfully. Routing to main flow (200).`);\n    }\n} catch (error) {\n    msg.statusCode = 500;\n    // [LOG 7]: กรณีเกิด Error (Database หลุด, getQrData พัง ฯลฯ)\n    node.error(`[Scan QR] Exception occurred: ${error.message}`, error);\n}\n\n// [LOG 8]: สรุป StatusCode ก่อนส่งออกจาก Node\nnode.log(`[Scan QR] Finished. Final msg.statusCode: ${msg.statusCode}`);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 500,
+        "wires": [
+            [
+                "c3a4281cac150cd5"
+            ]
+        ]
+    },
+    {
+        "id": "712f062156b87b2c",
+        "type": "inject",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 90,
+        "y": 260,
+        "wires": [
+            [
+                "ee93f6a90e3277df",
+                "01b8efac5ddd56cd",
+                "55c63a909adab22b",
+                "6ef9662a5164fe56",
+                "7c8d2fe78a20bcef"
+            ]
+        ]
+    },
+    {
+        "id": "01b8efac5ddd56cd",
+        "type": "tcp request",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "server": "192.168.150.51",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 380,
+        "y": 260,
+        "wires": [
+            [
+                "98e47cd62a46b37e"
+            ]
+        ]
+    },
+    {
+        "id": "98e47cd62a46b37e",
+        "type": "function",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "Scan QR QR_MJ_IN",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionQR = db.collection(global.get(\"CollectionEnum\").QR_DATA);\nconst getQrData = global.get(\"getQrData\");\n\n// [LOG 1]: ข้อมูลดิบที่รับมาจาก TCP\nnode.log(`[Scan QR] Started. Raw TCP Payload QR_MJ_IN: \"${msg.payload}\"`);\n\nconst rawQrCode = msg.payload.replace(/\\r\\n/g, \"\").trim();\nmsg.tempPayload = {\n    qr_code_data: rawQrCode,\n    location: \"QR_MJ_IN\"\n};\n\n// [LOG 2]: ข้อมูลที่ทำความสะอาด (Clean) เรียบร้อยแล้ว\nnode.log(`[Scan QR] Parsed Payload: ${JSON.stringify(msg.tempPayload)}`);\n\ntry {\n    // [LOG 3]: เริ่มค้นหาใน Database\n    node.log(`[Scan QR] Checking for duplicate QR in DB...`);\n\n    const isExist = await collectionQR.findOne({\n        qr_code: msg.tempPayload.qr_code_data,\n        location: msg.tempPayload.location\n    });\n\n    if (isExist) {\n        msg.statusCode = 400;\n        // [LOG 4]: กรณีเจอข้อมูลซ้ำ (ใช้ warn เพื่อให้เห็นชัดใน Debug)\n        node.warn(`[Scan QR] Duplicate QR found: ${rawQrCode} at ${msg.tempPayload.location}. Routing to error flow (400).`);\n    } else {\n        // [LOG 5]: ไม่ซ้ำ เริ่มดึงข้อมูลเพิ่มเติม\n        node.log(`[Scan QR] QR is new. Fetching additional data via getQrData...`);\n\n        msg.qrData = await getQrData(msg.tempPayload);\n        msg.statusCode = 200;\n\n        // [LOG 6]: ดึงข้อมูลสำเร็จ\n        node.log(`[Scan QR] Data fetched successfully. Routing to main flow (200).`);\n    }\n} catch (error) {\n    msg.statusCode = 500;\n    // [LOG 7]: กรณีเกิด Error (Database หลุด, getQrData พัง ฯลฯ)\n    node.error(`[Scan QR] Exception occurred: ${error.message}`, error);\n}\n\n// [LOG 8]: สรุป StatusCode ก่อนส่งออกจาก Node\nnode.log(`[Scan QR] Finished. Final msg.statusCode: ${msg.statusCode}`);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 260,
+        "wires": [
+            [
+                "c3a4281cac150cd5"
+            ]
+        ]
+    },
+    {
+        "id": "55c63a909adab22b",
+        "type": "tcp request",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "server": "192.168.150.52",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 380,
+        "y": 320,
+        "wires": [
+            [
+                "e679c5d668c0ae8c"
+            ]
+        ]
+    },
+    {
+        "id": "e679c5d668c0ae8c",
+        "type": "function",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "Scan QR QR_EW_IN",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionQR = db.collection(global.get(\"CollectionEnum\").QR_DATA);\nconst getQrData = global.get(\"getQrData\");\n\n// [LOG 1]: ข้อมูลดิบที่รับมาจาก TCP\nnode.log(`[Scan QR] Started. Raw TCP Payload QR_EW_IN: \"${msg.payload}\"`);\n\nconst rawQrCode = msg.payload.replace(/\\r\\n/g, \"\").trim();\nmsg.tempPayload = {\n    qr_code_data: rawQrCode,\n    location: \"QR_EW_IN\"\n};\n\n// [LOG 2]: ข้อมูลที่ทำความสะอาด (Clean) เรียบร้อยแล้ว\nnode.log(`[Scan QR] Parsed Payload: ${JSON.stringify(msg.tempPayload)}`);\n\ntry {\n    // [LOG 3]: เริ่มค้นหาใน Database\n    node.log(`[Scan QR] Checking for duplicate QR in DB...`);\n\n    const isExist = await collectionQR.findOne({\n        qr_code: msg.tempPayload.qr_code_data,\n        location: msg.tempPayload.location\n    });\n\n    if (isExist) {\n        msg.statusCode = 400;\n        // [LOG 4]: กรณีเจอข้อมูลซ้ำ (ใช้ warn เพื่อให้เห็นชัดใน Debug)\n        node.warn(`[Scan QR] Duplicate QR found: ${rawQrCode} at ${msg.tempPayload.location}. Routing to error flow (400).`);\n    } else {\n        // [LOG 5]: ไม่ซ้ำ เริ่มดึงข้อมูลเพิ่มเติม\n        node.log(`[Scan QR] QR is new. Fetching additional data via getQrData...`);\n\n        msg.qrData = await getQrData(msg.tempPayload);\n        msg.statusCode = 200;\n\n        // [LOG 6]: ดึงข้อมูลสำเร็จ\n        node.log(`[Scan QR] Data fetched successfully. Routing to main flow (200).`);\n    }\n} catch (error) {\n    msg.statusCode = 500;\n    // [LOG 7]: กรณีเกิด Error (Database หลุด, getQrData พัง ฯลฯ)\n    node.error(`[Scan QR] Exception occurred: ${error.message}`, error);\n}\n\n// [LOG 8]: สรุป StatusCode ก่อนส่งออกจาก Node\nnode.log(`[Scan QR] Finished. Final msg.statusCode: ${msg.statusCode}`);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 320,
+        "wires": [
+            [
+                "c3a4281cac150cd5"
+            ]
+        ]
+    },
+    {
+        "id": "6ef9662a5164fe56",
+        "type": "tcp request",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "server": "192.168.150.53",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 380,
+        "y": 380,
+        "wires": [
+            [
+                "54ce079950f03d42"
+            ]
+        ]
+    },
+    {
+        "id": "54ce079950f03d42",
+        "type": "function",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "Scan QR QR_IWPT_OUT",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionQR = db.collection(global.get(\"CollectionEnum\").QR_DATA);\nconst getQrData = global.get(\"getQrData\");\n\n// [LOG 1]: ข้อมูลดิบที่รับมาจาก TCP\nnode.log(`[Scan QR] Started. Raw TCP Payload QR_IWPT_OUT: \"${msg.payload}\"`);\n\nconst rawQrCode = msg.payload.replace(/\\r\\n/g, \"\").trim();\nmsg.tempPayload = {\n    qr_code_data: rawQrCode,\n    location: \"QR_IWPT_OUT\"\n};\n\n// [LOG 2]: ข้อมูลที่ทำความสะอาด (Clean) เรียบร้อยแล้ว\nnode.log(`[Scan QR] Parsed Payload: ${JSON.stringify(msg.tempPayload)}`);\n\ntry {\n    // [LOG 3]: เริ่มค้นหาใน Database\n    node.log(`[Scan QR] Checking for duplicate QR in DB...`);\n\n    const isExist = await collectionQR.findOne({\n        qr_code: msg.tempPayload.qr_code_data,\n        location: msg.tempPayload.location\n    });\n\n    if (isExist) {\n        msg.statusCode = 400;\n        // [LOG 4]: กรณีเจอข้อมูลซ้ำ (ใช้ warn เพื่อให้เห็นชัดใน Debug)\n        node.warn(`[Scan QR] Duplicate QR found: ${rawQrCode} at ${msg.tempPayload.location}. Routing to error flow (400).`);\n    } else {\n        // [LOG 5]: ไม่ซ้ำ เริ่มดึงข้อมูลเพิ่มเติม\n        node.log(`[Scan QR] QR is new. Fetching additional data via getQrData...`);\n\n        msg.qrData = await getQrData(msg.tempPayload);\n        msg.statusCode = 200;\n\n        // [LOG 6]: ดึงข้อมูลสำเร็จ\n        node.log(`[Scan QR] Data fetched successfully. Routing to main flow (200).`);\n    }\n} catch (error) {\n    msg.statusCode = 500;\n    // [LOG 7]: กรณีเกิด Error (Database หลุด, getQrData พัง ฯลฯ)\n    node.error(`[Scan QR] Exception occurred: ${error.message}`, error);\n}\n\n// [LOG 8]: สรุป StatusCode ก่อนส่งออกจาก Node\nnode.log(`[Scan QR] Finished. Final msg.statusCode: ${msg.statusCode}`);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 380,
+        "wires": [
+            [
+                "c3a4281cac150cd5"
+            ]
+        ]
+    },
+    {
+        "id": "7c8d2fe78a20bcef",
+        "type": "tcp request",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "",
+        "server": "192.168.150.54",
+        "port": "51236",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 380,
+        "y": 440,
+        "wires": [
+            [
+                "0118d9b92f04628f"
+            ]
+        ]
+    },
+    {
+        "id": "0118d9b92f04628f",
+        "type": "function",
+        "z": "dcd4ecfd21ec52c9",
+        "name": "Scan QR QR_BR_STR_IN",
+        "func": "const db = global.get(\"connetion_mongo\");\nconst collectionQR = db.collection(global.get(\"CollectionEnum\").QR_DATA);\nconst getQrData = global.get(\"getQrData\");\n\n// [LOG 1]: ข้อมูลดิบที่รับมาจาก TCP\nnode.log(`[Scan QR] Started. Raw TCP Payload QR_BR_STR_IN: \"${msg.payload}\"`);\n\nconst rawQrCode = msg.payload.replace(/\\r\\n/g, \"\").trim();\nmsg.tempPayload = {\n    qr_code_data: rawQrCode,\n    location: \"QR_BR_STR_IN\"\n};\n\n// [LOG 2]: ข้อมูลที่ทำความสะอาด (Clean) เรียบร้อยแล้ว\nnode.log(`[Scan QR] Parsed Payload: ${JSON.stringify(msg.tempPayload)}`);\n\ntry {\n    // [LOG 3]: เริ่มค้นหาใน Database\n    node.log(`[Scan QR] Checking for duplicate QR in DB...`);\n\n    const isExist = await collectionQR.findOne({\n        qr_code: msg.tempPayload.qr_code_data,\n        location: msg.tempPayload.location\n    });\n\n    if (isExist) {\n        msg.statusCode = 400;\n        // [LOG 4]: กรณีเจอข้อมูลซ้ำ (ใช้ warn เพื่อให้เห็นชัดใน Debug)\n        node.warn(`[Scan QR] Duplicate QR found: ${rawQrCode} at ${msg.tempPayload.location}. Routing to error flow (400).`);\n    } else {\n        // [LOG 5]: ไม่ซ้ำ เริ่มดึงข้อมูลเพิ่มเติม\n        node.log(`[Scan QR] QR is new. Fetching additional data via getQrData...`);\n\n        msg.qrData = await getQrData(msg.tempPayload);\n        msg.statusCode = 200;\n\n        // [LOG 6]: ดึงข้อมูลสำเร็จ\n        node.log(`[Scan QR] Data fetched successfully. Routing to main flow (200).`);\n    }\n} catch (error) {\n    msg.statusCode = 500;\n    // [LOG 7]: กรณีเกิด Error (Database หลุด, getQrData พัง ฯลฯ)\n    node.error(`[Scan QR] Exception occurred: ${error.message}`, error);\n}\n\n// [LOG 8]: สรุป StatusCode ก่อนส่งออกจาก Node\nnode.log(`[Scan QR] Finished. Final msg.statusCode: ${msg.statusCode}`);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 440,
+        "wires": [
+            [
+                "c3a4281cac150cd5"
+            ]
+        ]
+    },
+    {
         "id": "a6404e1d6887a9f2",
         "type": "http in",
         "z": "3f82c49c8d750693",
@@ -4072,35 +4407,6 @@
         ]
     },
     {
-        "id": "e638e8ebef3aa111",
-        "type": "inject",
-        "z": "3f82c49c8d750693",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "1",
-        "topic": "",
-        "payload": "",
-        "payloadType": "str",
-        "x": 150,
-        "y": 240,
-        "wires": [
-            [
-                "e1962f5132fb0453"
-            ]
-        ]
-    },
-    {
         "id": "3050d10ba0eae75d",
         "type": "comment",
         "z": "3f82c49c8d750693",
@@ -4370,6 +4676,33 @@
             [
                 "4c484eec3b95515f"
             ]
+        ]
+    },
+    {
+        "id": "e638e8ebef3aa111",
+        "type": "inject",
+        "z": "3f82c49c8d750693",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 150,
+        "y": 260,
+        "wires": [
+            []
         ]
     },
     {
