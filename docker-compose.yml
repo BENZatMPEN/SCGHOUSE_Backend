@@ -1,20 +1,35 @@
-version: '3'
 services:
   mongodb:
     image: mongo:latest
-    container_name: mongodb
+    container_name: scghouse-mongodb
     ports:
       - "27117:27017"
     volumes:
-      - ./data/mongodb_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: ajbear1969
-  client:
-    image: production-anslysis-dashboard
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ../SCGHOUSE_Front
+      dockerfile: Dockerfile
+    container_name: scghouse-frontend
     ports:
-      - "8000:3000"
+      - "8000:8000"
     environment:
-      REACT_APP_BACKEND_API_ENDPOINT: http://localhost:2300
-    command: npm start
+      REACT_APP_BACKEND_API_ENDPOINT: http://host.docker.internal:2300
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

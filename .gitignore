@@ -3,3 +3,5 @@
 /.idea/modules.xml
 /.idea/production-analysis-service.iml
 /.idea/vcs.xml
+.env
+/data/
